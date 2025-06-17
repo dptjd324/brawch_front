@@ -28,10 +28,17 @@ function getChosung(str: string | undefined) {
   return str[0];
 }
 
+const tiers = ["S+", "S", "A", "B", "C"];
+
+
+
 export default function BrawlersPage() {
   const [brawlers, setBrawlers] = useState<BrawlerData[]>([]);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [tierList, setTierList] = useState<{ [key: string]: BrawlerData[] }>({});
+
+
 
   const roleImages: { [key: string]: string } = {
     "탱커": "/role/icon_class_tank.png",
@@ -59,9 +66,35 @@ export default function BrawlersPage() {
         setBrawlers(sorted);
       });
   }, []);
+  useEffect(() => {
+    // 브롤러 데이터 가져오기
+    fetch("http://localhost:8081/api/brawlers")
+      .then((res) => res.json())
+      .then((data) => {
+        distributeBrawlersToTiers(data);
+      })
+      .catch((err) => console.error("Failed to fetch brawlers:", err));
+  }, []);
 
   const handleRoleClick = (role: string) => {
     setSelectedRole(prev => (prev === role ? null : role));
+  };
+
+  const distributeBrawlersToTiers = (brawlers: BrawlerData[]) => {
+    const sortedBrawlers = [...brawlers].sort((a, b) => a.nameKr.localeCompare(b.nameKr, "ko-KR"));
+    const newTierList: { [key: string]: BrawlerData[] } = {};
+
+    tiers.forEach((tier) => {
+      newTierList[tier] = [];
+    });
+
+    sortedBrawlers.forEach((brawler, index) => {
+      const tierIndex = index % tiers.length; // 브롤러를 티어별로 분배
+      const tier = tiers[tierIndex];
+      newTierList[tier].push(brawler);
+    });
+
+    setTierList(newTierList);
   };
 
   const filteredBrawlers = brawlers.filter(b => {
@@ -73,7 +106,7 @@ export default function BrawlersPage() {
   return (
     <div className="flex p-10 gap-12 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen font-sans text-white">
       {/* 좌측 브롤러 영역 */}
-      <div className="w-[420px] bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col gap-6">
+      <div className="flex-[3] bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col gap-6">
         {/* 상단 바 */}
         <div className="flex items-center justify-between mb-2">
           <span className="font-bold text-sm text-gray-300">VER.</span>
@@ -98,7 +131,7 @@ export default function BrawlersPage() {
           <button
             onClick={() => setSelectedRole(null)}
             className={`w-28 h-12 flex items-center justify-center rounded-lg font-semibold shadow transition-all
-              ${selectedRole === null ? "bg-teal-400 text-white" : "bg-gray-700 text-gray-300 border border-teal-500"}`}
+          ${selectedRole === null ? "bg-teal-400 text-white" : "bg-gray-700 text-gray-300 border border-teal-500"}`}
           >
             전체
           </button>
@@ -107,7 +140,7 @@ export default function BrawlersPage() {
               key={i}
               onClick={() => handleRoleClick(role)}
               className={`w-28 h-12 flex items-center justify-center gap-2 rounded-lg font-semibold shadow transition-all
-                ${selectedRole === role ? "bg-pink-400 text-white" : "bg-gray-700 text-gray-300 border border-pink-500"}`}
+            ${selectedRole === role ? "bg-pink-400 text-white" : "bg-gray-700 text-gray-300 border border-pink-500"}`}
             >
               <img
                 src={roleImages[role]}
@@ -141,62 +174,89 @@ export default function BrawlersPage() {
       </div>
 
       {/* 우측 티어표 영역 */}
-      <div className="flex-1 flex flex-col gap-6">
-        {/* 헤더 */}
-        <div className="grid grid-cols-7 items-center px-6 py-3 font-bold text-base text-gray-300 bg-gray-800 rounded-xl shadow mb-2">
-          <span className="text-center">순위</span>
-          <span className="text-center">티어</span>
-          <span className="text-center">브롤러</span>
-          <span className="text-center">조합</span>
-          <span className="text-center">승률</span>
-          <span className="text-center">픽률</span>
-          <span className="text-center">카운터</span>
-        </div>
-        {/* 티어 리스트 */}
-        <div className="flex flex-col gap-4">
-          {[1, 2, 3, 4, 5].map((tier, i) => {
-            const tierNumStyle = [
-              "bg-yellow-400 text-white shadow-lg border-4 border-yellow-200 scale-110",
-              "bg-green-300 text-white shadow-md border-4 border-green-100",
-              "bg-blue-300 text-white shadow border-4 border-blue-100",
-              "bg-gray-300 text-gray-600 border-4 border-gray-200",
-              "bg-gray-500 text-gray-200 border-4 border-gray-400 opacity-70"
-            ];
-            const tierLabelStyle = [
-              "bg-gradient-to-br from-yellow-200 to-yellow-400 text-yellow-900 font-extrabold drop-shadow",
-              "bg-gradient-to-br from-lime-200 to-green-300 text-green-900 font-bold",
-              "bg-gradient-to-br from-blue-100 to-blue-300 text-blue-900 font-bold",
-              "bg-gradient-to-br from-gray-200 to-gray-400 text-gray-700 font-semibold",
-              "bg-gradient-to-br from-gray-400 to-gray-600 text-gray-500 font-semibold"
-            ];
-            return (
-              <div
-                key={i}
-                className="grid grid-cols-7 items-center px-6 py-4 rounded-2xl bg-gray-800 shadow-md gap-2 hover:scale-[1.01] transition-transform duration-150"
-              >
-                <span className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg border-4 ${tierNumStyle[i]}`}>
-                  {tier}
-                </span>
-                <span className={`mx-auto w-16 h-10 flex items-center justify-center rounded-xl shadow-md text-lg ${tierLabelStyle[i]}`}>
-                  {["S+", "S", "A", "B", "C"][i]}
-                </span>
-                <div className="flex gap-1 justify-center">
-                  <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
+      <div className="flex-[7] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen w-full text-white">
+        <div className="flex flex-col gap-0">
+          {/* 헤더 */}
+          <div className="grid grid-cols-7 items-center px-6 py-3 font-bold text-base text-gray-300 bg-gray-800 rounded-xl shadow mb-0">
+            <span className="text-center">순위</span>
+            <span className="text-center">티어</span>
+            <span className="text-center">브롤러</span>
+            <span className="text-center">조합</span>
+            <span className="text-center">승률</span>
+            <span className="text-center">픽률</span>
+            <span className="text-center">카운터</span>
+          </div>
+          {/* 브롤러 리스트 */}
+          <div className="flex flex-col overflow-y-auto flex-grow w-full h-full">
+            {Object.values(tierList).flat().map((brawler, globalIndex) => {
+              const tierColors: { [key: string]: string } = {
+                "S+": "bg-yellow-400 text-white shadow-lg border-4 border-yellow-200 scale-110",
+                "S": "bg-green-300 text-white shadow-md border-4 border-green-100",
+                "A": "bg-blue-300 text-white shadow border-4 border-blue-100",
+                "B": "bg-gray-300 text-gray-600 border-4 border-gray-200",
+                "C": "bg-gray-500 text-gray-200 border-4 border-gray-400 opacity-70"
+              };
+
+              const tierLabelColors: { [key: string]: string } = {
+                "S+": "bg-gradient-to-br from-yellow-200 to-yellow-400 text-yellow-900 font-extrabold drop-shadow",
+                "S": "bg-gradient-to-br from-lime-200 to-green-300 text-green-900 font-bold",
+                "A": "bg-gradient-to-br from-blue-100 to-blue-300 text-blue-900 font-bold",
+                "B": "bg-gradient-to-br from-gray-200 to-gray-400 text-gray-700 font-semibold",
+                "C": "bg-gradient-to-br from-gray-400 to-gray-600 text-gray-500 font-semibold"
+              };
+
+              const tier = Object.entries(tierList).find(([_, brawlers]) =>
+                brawlers.includes(brawler)
+              )?.[0] || "Unknown";
+
+              // 승률과 픽률을 티어에 따라 설정
+              const winRate = tier === "S+" ? (Math.random() * 5 + 60).toFixed(1) + "%" : // 60~65
+                tier === "S" ? (Math.random() * 5 + 55).toFixed(1) + "%" : // 55~60
+                  tier === "A" ? (Math.random() * 5 + 50).toFixed(1) + "%" : // 50~55
+                    tier === "B" ? (Math.random() * 5 + 45).toFixed(1) + "%" : // 45~50
+                      (Math.random() * 5 + 40).toFixed(1) + "%";                 // 40~45
+
+              const pickRate = (Math.random() * 27 + 1).toFixed(1) + "%"; // 1~28 범위
+
+              return (
+                <div
+                  key={brawler.brawlerId}
+                  className="grid grid-cols-7 items-center px-6 py-4 rounded-2xl bg-gray-800 shadow-md gap-2 hover:scale-[1.01] transition-transform duration-150"
+                >
+                  <span className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${tierColors[tier]}`}>
+                    {globalIndex + 1}
+                  </span>
+                  <span className={`mx-auto w-16 h-10 flex items-center justify-center rounded-xl shadow-md text-lg ${tierLabelColors[tier]}`}>
+                    {tier}
+                  </span>
+                  {/* 브롤러 사진과 이름 */}
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={brawler.imageUrl || "/default-profile.png"}
+                      alt={brawler.nameKr || "브롤러 없음"}
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
+                    <span className="text-sm font-bold text-gray-300">
+                      {brawler.nameKr || "브롤러 없음"}
+                    </span>
+                  </div>
+                  {/* 조합 */}
+                  <div className="flex gap-2 justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-yellow-300 shadow" />
+                    <div className="w-9 h-9 rounded-xl bg-purple-300 shadow" />
+                  </div>
+                  <span className="text-center font-bold text-gray-300">{winRate}</span>
+                  <span className="text-center font-bold text-gray-300">{pickRate}</span>
+                  {/* 카운터 */}
+                  <div className="flex gap-2 justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
+                    <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
+                    <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
+                  </div>
                 </div>
-                <div className="flex gap-2 justify-center">
-                  <div className="w-9 h-9 rounded-xl bg-yellow-300 shadow" />
-                  <div className="w-9 h-9 rounded-xl bg-purple-300 shadow" />
-                </div>
-                <span className="text-center font-bold text-gray-300">50%</span>
-                <span className="text-center font-bold text-gray-300">0.2%</span>
-                <div className="flex gap-2 justify-center">
-                  <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
-                  <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
-                  <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

@@ -20,9 +20,9 @@ interface Brawler {
   movespdValue: number;
   attackNameKr: string;
   superNameKr: string;
-  lvPerHp: number;
   lvPerDamage: number;
   lvPerSuperdamage: number;
+  lvPerHp: number;
 }
 interface Gadget {
   nameKr: string;
@@ -59,6 +59,8 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
       })
       .catch((err) => console.error("Failed to fetch star powers:", err));
   }, [brawler.brawlerId]);
+
+  
   return (
     <div className="bg-gray-900 min-h-screen text-white">
       <div className="max-w-screen-lg mx-auto p-8 space-y-8">
