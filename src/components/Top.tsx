@@ -15,7 +15,6 @@ export const Top = () => {
             className="w-16 h-16 object-cover cursor-pointer hover:scale-110 transition-transform duration-200"
           />
         </Link>
-
         {/* 가운데 메뉴 */}
         <div className="flex items-center gap-12 justify-center flex-1">
           <Link href="/">

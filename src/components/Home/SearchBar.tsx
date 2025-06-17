@@ -1,17 +1,22 @@
 'use client';
+
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-interface SearchBarProps {
-  onSearch?: (query: string) => void;
-}
-
-export function SearchBar({ onSearch }: SearchBarProps) {
+export function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch(searchQuery);
+    const tag = searchQuery.replace("#", "").toUpperCase();
+
+    // API 확인
+    const res = await fetch(`http://localhost:8081/api/players/${tag}`);
+    if (res.ok) {
+      router.push(`/players/${tag}`);
+    } else {
+      alert("존재하지 않는 플레이어 태그입니다.");
     }
   };
 
@@ -21,7 +26,6 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       className="flex items-center gap-4 w-full max-w-lg mx-auto p-4 bg-gray-800 shadow-lg rounded-lg"
       aria-label="Search form"
     >
-      {/* Player 버튼 */}
       <button
         type="button"
         className="bg-green-500 text-white px-6 py-3 font-semibold rounded-lg transition-all hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 shadow-md"
@@ -30,7 +34,6 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         Player
       </button>
 
-      {/* 검색 입력 필드 */}
       <input
         type="text"
         value={searchQuery}
@@ -40,7 +43,6 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         aria-label="Search input"
       />
 
-      {/* Search 버튼 */}
       <button
         type="submit"
         className="bg-teal-500 text-white px-6 py-3 font-semibold rounded-lg transition-all hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-400 shadow-md"
