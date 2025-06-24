@@ -98,7 +98,7 @@ export default function PlayerDetail({ player }: { player: any }) {
             const mode = battleInfo.mode || "모드 없음";
             const type = battleInfo.type || "타입 없음";
             const trophyChange = battleInfo.trophyChange || "정보 없음";
-
+            
             const myBrawler = battleInfo.teams?.[0]?.[0]?.brawler?.name || "브롤러 없음";
 
             return (
