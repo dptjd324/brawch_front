@@ -120,8 +120,7 @@ export default function PlayerDetail({ player }: { player: any }) {
                 <div className="text-gray-300 text-lg">
                   트로피 변화량: {trophyChange}
                 </div>
-                console.log("링크 확인:", player.tag, i);
-                
+
               </Link>
 
             );
