@@ -99,7 +99,12 @@ export default function PlayerDetail({ player }: { player: any }) {
             const type = battleInfo.type || "타입 없음";
             const trophyChange = battleInfo.trophyChange || "정보 없음";
 
-            const myBrawler = battleInfo.teams?.[0]?.[0]?.brawler?.name || "브롤러 없음";
+            const myTag = (player.tag.startsWith("#") ? player.tag : `#${player.tag}`).toUpperCase();
+
+            const myBrawler =
+              battleInfo.teams?.flat()
+                ?.find((p: any) => p?.tag?.toUpperCase() === myTag)
+                ?.brawler?.name || "브롤러 없음";
 
             return (
               <Link
