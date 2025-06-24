@@ -98,19 +98,8 @@ export default function PlayerDetail({ player }: { player: any }) {
             const mode = battleInfo.mode || "모드 없음";
             const type = battleInfo.type || "타입 없음";
             const trophyChange = battleInfo.trophyChange || "정보 없음";
-<<<<<<< HEAD
             
             const myBrawler = battleInfo.teams?.[0]?.[0]?.brawler?.name || "브롤러 없음";
-=======
-
-
-            // 플레이어가 사용한 브롤러 나오도록 수정  
-            const myTag = (player.tag.startsWith("#") ? player.tag : `#${player.tag}`).toUpperCase();
-            const myBrawler =
-              battleInfo.teams?.flat()
-                ?.find((p: any) => p?.tag?.toUpperCase() === myTag)
-                ?.brawler?.name || "브롤러 없음";
->>>>>>> c866d40d8f5991e049ecedd6ddfa0b1ae0d4d075
 
             return (
               <Link
