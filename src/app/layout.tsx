@@ -7,14 +7,14 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Brawler Stats",
+  title: "Brawch",
   description: "Brawler tier list and search",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`font-nougat ${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Top />
         <main>{children}</main>
       </body>

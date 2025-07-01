@@ -1,9 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from "next/link";
+import Image from "next/image";
 
 export default function PlayerDetail({ player }: { player: any }) {
+  const [visibleCount, setVisibleCount] = useState(10);
+  const battleLog = player.battleLog || [];
+
+  const loadMore = () => {
+    setVisibleCount(prev => Math.min(prev + 10, battleLog.length));
+  };
+
   return (
     <div className="p-8 text-white bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen">
       {/* 플레이어 정보 */}
@@ -90,7 +98,7 @@ export default function PlayerDetail({ player }: { player: any }) {
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-3xl font-bold mb-4 text-teal-400">전적</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {player.battleLog?.slice(0, 10).map((battle: any, i: number) => {
+          {battleLog.slice(0, visibleCount).map((battle: any, i: number) => {
             const battleInfo = battle.battle || {};
             const battleTime = battle.battleTime || "unknown";
             const shortDate = battleTime.split("T")[0] || "날짜 없음";
@@ -98,6 +106,7 @@ export default function PlayerDetail({ player }: { player: any }) {
             const mode = battleInfo.mode || "모드 없음";
             const type = battleInfo.type || "타입 없음";
             const trophyChange = battleInfo.trophyChange || "정보 없음";
+            const iconPath = `/mode/${mode}_icon.png`;
 
             const myTag = (player.tag.startsWith("#") ? player.tag : `#${player.tag}`).toUpperCase();
 
@@ -105,7 +114,6 @@ export default function PlayerDetail({ player }: { player: any }) {
               battleInfo.teams?.flat()
                 ?.find((p: any) => p?.tag?.toUpperCase() === myTag)
                 ?.brawler?.name || "브롤러 없음";
-
 
             return (
               <Link
@@ -115,7 +123,16 @@ export default function PlayerDetail({ player }: { player: any }) {
               >
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-lg font-bold text-teal-400">{shortDate}</p>
-                  <p className="text-lg text-gray-300">{mode}</p>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={iconPath}
+                      alt="mode icon"
+                      width={24}
+                      height={24}
+                      className="inline-block"
+                    />
+                    <p className="text-lg text-gray-300">{mode}</p>
+                  </div>
                 </div>
                 <div className="text-gray-300 text-lg mb-1">
                   타입: {type} / 결과: {result}
@@ -126,12 +143,21 @@ export default function PlayerDetail({ player }: { player: any }) {
                 <div className="text-gray-300 text-lg">
                   트로피 변화량: {trophyChange}
                 </div>
-
               </Link>
-
             );
           })}
         </div>
+
+        {visibleCount < battleLog.length && (
+          <div className="text-center mt-6">
+            <button
+              onClick={loadMore}
+              className="px-6 py-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded"
+            >
+              더 보기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
