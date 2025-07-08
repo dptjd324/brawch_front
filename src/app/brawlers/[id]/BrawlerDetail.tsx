@@ -151,7 +151,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
           </div>
         </div>
 
-        {/* 기본정보보 */}
+        {/* 기본정보 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
           <h3 className="font-bold text-lg mb-4">기본정보</h3>
           <table className="w-full text-sm text-left text-gray-300">
@@ -211,7 +211,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
               <div>
                 <h4 className="font-bold text-gray-300">기본공격 (Attack)</h4>
                 <p className="text-gray-600">{brawler.attackNameKr}</p>
-                <p className="text-gray-400">{brawler.attackDescKr || "설명이 없습니다."}</p>
+                <p className="text-gray-400 whitespace-pre-line">{brawler.attackDescKr || "설명이 없습니다."}</p>
               </div>
             </div>
             {/* 슈퍼공격 */}
@@ -224,7 +224,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
               <div>
                 <h4 className="font-bold text-gray-300">특수공격 (Super)</h4>
                 <p className="text-gray-400">{brawler.superNameKr}</p>
-                <p className="text-gray-400">{brawler.superDescKr || "설명이 없습니다."}</p>
+                <p className="text-gray-400 whitespace-pre-line">{brawler.superDescKr || "설명이 없습니다."}</p>
               </div>
             </div>
             {/* 가젯 */}
@@ -237,7 +237,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
                 />
                 <div>
                   <h4 className="font-bold text-gray-300">{gadget.nameKr} (Gadget)</h4>
-                  <p className="text-gray-400">{gadget.descriptionKr || "설명이 없습니다."}</p>
+                  <p className="text-gray-400 whitespace-pre-line">{gadget.descriptionKr || "설명이 없습니다."}</p>
                 </div>
               </div>
             ))}
@@ -251,7 +251,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
                 />
                 <div>
                   <h4 className="font-bold text-gray-300">{starPower.nameKr} (Star Power)</h4>
-                  <p className="text-gray-400">{starPower.descriptionKr || "설명이 없습니다."}</p>
+                  <p className="text-gray-400 whitespace-pre-line">{starPower.descriptionKr || "설명이 없습니다."}</p>
                 </div>
               </div>
             ))}

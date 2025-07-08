@@ -3,6 +3,7 @@
 import BattleDetail from "@/components/Player/BattleDetail";
 import { notFound } from "next/navigation";
 
+
 //동적라우팅처리
 export const dynamic = "force-dynamic";
 
