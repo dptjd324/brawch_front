@@ -60,7 +60,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
       .catch((err) => console.error("Failed to fetch star powers:", err));
   }, [brawler.brawlerId]);
 
-  
+
   return (
     <div className="bg-gray-900 min-h-screen text-white">
       <div className="max-w-screen-lg mx-auto p-8 space-y-8">
@@ -198,6 +198,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
           </table>
         </div>
 
+        {/* 스킬 상세설명 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
           <h3 className="font-bold text-lg mb-4">스킬 상세설명</h3>
           <div className="space-y-6">
@@ -210,10 +211,11 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
               />
               <div>
                 <h4 className="font-bold text-gray-300">기본공격 (Attack)</h4>
-                <p className="text-gray-600">{brawler.attackNameKr}</p>
-                <p className="text-gray-400">{brawler.attackDescKr || "설명이 없습니다."}</p>
+                <p className="text-gray-600 whitespace-pre-line">{brawler.attackNameKr}</p>
+                <p className="text-gray-400 whitespace-pre-line">{brawler.attackDescKr || "설명이 없습니다."}</p>
               </div>
             </div>
+
             {/* 슈퍼공격 */}
             <div className="flex items-center gap-4">
               <img
@@ -223,10 +225,11 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
               />
               <div>
                 <h4 className="font-bold text-gray-300">특수공격 (Super)</h4>
-                <p className="text-gray-400">{brawler.superNameKr}</p>
-                <p className="text-gray-400">{brawler.superDescKr || "설명이 없습니다."}</p>
+                <p className="text-gray-400 whitespace-pre-line">{brawler.superNameKr}</p>
+                <p className="text-gray-400 whitespace-pre-line">{brawler.superDescKr || "설명이 없습니다."}</p>
               </div>
             </div>
+
             {/* 가젯 */}
             {Array.isArray(gadgets) && gadgets.map((gadget, index) => (
               <div key={index} className="flex items-center gap-4">
@@ -237,10 +240,11 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
                 />
                 <div>
                   <h4 className="font-bold text-gray-300">{gadget.nameKr} (Gadget)</h4>
-                  <p className="text-gray-400">{gadget.descriptionKr || "설명이 없습니다."}</p>
+                  <p className="text-gray-400 whitespace-pre-line">{gadget.descriptionKr || "설명이 없습니다."}</p>
                 </div>
               </div>
             ))}
+
             {/* 스타파워 */}
             {Array.isArray(starPowers) && starPowers.map((starPower, index) => (
               <div key={index} className="flex items-center gap-4">
@@ -251,12 +255,13 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
                 />
                 <div>
                   <h4 className="font-bold text-gray-300">{starPower.nameKr} (Star Power)</h4>
-                  <p className="text-gray-400">{starPower.descriptionKr || "설명이 없습니다."}</p>
+                  <p className="text-gray-400 whitespace-pre-line">{starPower.descriptionKr || "설명이 없습니다."}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
       </div>
     </div>
   );

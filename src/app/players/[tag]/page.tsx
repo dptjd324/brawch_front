@@ -1,3 +1,4 @@
+
 import { notFound } from "next/navigation";
 import PlayerDetail from "@/components/Player/PlayerDetail";
 
