@@ -151,7 +151,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
           </div>
         </div>
 
-        {/* 기본정보보 */}
+        {/* 기본정보 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
           <h3 className="font-bold text-lg mb-4">기본정보</h3>
           <table className="w-full text-sm text-left text-gray-300">
