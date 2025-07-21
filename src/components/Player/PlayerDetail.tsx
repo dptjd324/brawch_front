@@ -97,18 +97,19 @@ const brawlerNameMap: { [key: string]: string } = {
   "Lumi": "루미",
   "Finx": "핑크스",
   "Jae-yong": "재용",
-  "Kaze": "카제"
-  "Trunk": "트렁크"
+  "Kaze": "카제",
+  "Trunk": "트렁크",
+  "Alli": "알리",
   "브롤러 없음": "브롤러 없음"
 };
 const modeKoMap: { [key: string]: string } = {
   gemGrab: "젬 그랩",
-  showdown: "솔로 쇼다운",
+  soloShowdown: "솔로 쇼다운",
   duoShowdown: "듀오 쇼다운",
   brawlBall: "브롤볼",
   bounty: "바운티",
   heist: "하이스트",
-  siege: "시즈",
+  siege: "시즈 팩토리",
   hotZone: "핫 존",
   knockout: "녹아웃",
   bossFight: "보스전",
@@ -117,7 +118,7 @@ const modeKoMap: { [key: string]: string } = {
   trophyThieves: "트로피 도둑",
   volleyBrawl: "발리 브롤",
   basketBrawl: "바스켓 브롤",
-  wipeout: "와이프아웃",
+  wipeout: "와이프 아웃",
   duels: "듀얼",
   hunters: "헌터",
   powerLeague: "파워 리그",
@@ -182,10 +183,17 @@ export default function PlayerDetail({ player }: { player: any }) {
 
       </div>
       {/* 트로피, 경쟁전, 승리 정보 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* 트로피 정보 */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-3xl font-bold mb-4 text-teal-400">트로피</h3>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col">
+          <div className="flex items-center mb-4">
+            <h3 className="text-3xl font-bold text-teal-400 mr-3">트로피</h3>
+            <img
+              src="/icon/icon_trophy.png"
+              alt="트로피 아이콘"
+              className="w-8 h-8"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col items-center">
               <p className="text-lg text-gray-300">현재 트로피</p>
@@ -198,50 +206,34 @@ export default function PlayerDetail({ player }: { player: any }) {
           </div>
         </div>
 
-
-        {/* 경쟁전 정보 */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-3xl font-bold mb-4 text-teal-400">경쟁전</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {/* 파워플레이 최고 점수 */}
-            <div className="flex flex-col items-center">
-              <p className="text-lg text-gray-300">파워플레이 최고</p>
-              <p className="text-2xl font-bold text-white">
-                {player.highestPowerPlayPoints ?? "없음"}
-              </p>
-            </div>
-
-            {/* 파워플레이 현재 점수 + 솔로 랭크 */}
-            <div className="flex flex-col items-center">
-              <p className="text-lg text-gray-300">파워플레이 현재</p>
-              <div className="flex flex-col items-center">
-                <p className="text-2xl font-bold text-white">
-                  {player.powerPlayPoints ?? "없음"}
-                </p>
-                <p className="text-sm text-gray-400 mt-1">
-                  솔로 랭크: {player.powerLeague?.solo?.rank ?? "정보 없음"}
-                </p>
-                <p className="text-sm text-gray-400 mt-1">
-                  팀 랭크: {player.powerLeague?.team?.rank ?? "정보 없음"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* 승리 정보 */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col">
           <h3 className="text-3xl font-bold mb-4 text-teal-400">승리 정보</h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col items-center">
+              <img
+                src="/mode/3v3_icon.png"
+                alt="3vs3 아이콘"
+                className="w-12 h-12 mb-2"
+              />
               <p className="text-lg text-gray-300">3vs3 승리</p>
               <p className="text-2xl font-bold text-white">{player['3vs3Victories'] ?? player.victories3v3 ?? 0}</p>
             </div>
             <div className="flex flex-col items-center">
+              <img
+                src="/mode/soloshowdown_icon.png"
+                alt="솔로 아이콘"
+                className="w-12 h-12 mb-2"
+              />
               <p className="text-lg text-gray-300">솔로 승리</p>
               <p className="text-2xl font-bold text-white">{player.soloVictories ?? 0}</p>
             </div>
             <div className="flex flex-col items-center">
+              <img
+                src="/mode/duoshowdown_icon.png"
+                alt="듀오 아이콘"
+                className="w-12 h-12 mb-2"
+              />
               <p className="text-lg text-gray-300">듀오 승리</p>
               <p className="text-2xl font-bold text-white">{player.duoVictories ?? 0}</p>
             </div>
@@ -256,9 +248,38 @@ export default function PlayerDetail({ player }: { player: any }) {
           {battleLog.slice(0, visibleCount).map((battle: any, i: number) => {
             const battleInfo = battle.battle || {};
             const battleTime = battle.battleTime || "unknown";
-            const shortDate = battleTime.split("T")[0] || "날짜 없음";
+            // 날짜 계산
+            let shortDate = "날짜 없음";
+            if (battleTime !== "unknown") {
+              const battleDate = new Date(
+                battleTime.replace(
+                  /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})\.\d+Z$/,
+                  "$1-$2-$3T$4:$5:$6Z"
+                )
+              );
+              const now = new Date();
+              const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+              const battleDay = new Date(battleDate.getFullYear(), battleDate.getMonth(), battleDate.getDate());
+              const diffTime = today.getTime() - battleDay.getTime();
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              if (diffDays === 0) {
+                shortDate = "오늘";
+              } else if (diffDays === 1) {
+                shortDate = "1일 전";
+              } else {
+                shortDate = `${diffDays}일 전`;
+              }
+            }
             const result = battleInfo.result || "결과 없음";
             const mode = battleInfo.mode || "모드 없음";
+            let resultText = "결과 없음";
+            if (mode === "duoShowdown" || mode === "soloShowdown") {
+              if (typeof battleInfo.rank === "number") {
+                resultText = `${battleInfo.rank}위`;
+              }
+            } else {
+              resultText = resultKoMap[result] || result;
+            }
             const trophyChange = battleInfo.trophyChange ?? "정보 없음";
             const iconPath = `/mode/${mode}_icon.png`;
 
@@ -274,16 +295,30 @@ export default function PlayerDetail({ player }: { player: any }) {
                   }
                 }
               }
+            } else if (battleInfo.players) {
+              for (const p of battleInfo.players) {
+                const pTag = p.tag ? p.tag.toUpperCase() : "";
+                if (pTag === myTag) {
+                  myBrawlerEn = p.brawler?.name || "브롤러 없음";
+                  break;
+                }
+              }
             }
             const myBrawlerKey = toBrawlerKey(myBrawlerEn);
             const myBrawler = brawlerNameMap[myBrawlerKey] || myBrawlerEn;
 
-            const boxBg =
-              result === "victory"
-                ? "bg-blue-600 border-2 border-blue-400"
-                : result === "defeat"
-                  ? "bg-red-700/90 border-2 border-red-600"
-                  : "bg-blue-600/80 border-2 border-blue-500";
+            let boxBg = "";
+
+            if (mode === "soloShowdown" || mode === "duoShowdown" && typeof battleInfo.rank === "number") {
+              boxBg = "bg-green-700 border-2 border-green-400";
+            } else {
+              boxBg =
+                result === "victory"
+                  ? "bg-blue-600 border-2 border-blue-400"
+                  : result === "defeat"
+                    ? "bg-red-700/90 border-2 border-red-600"
+                    : "bg-blue-600/80 border-2 border-blue-500";
+            }
 
             return (
               <Link
@@ -294,23 +329,52 @@ export default function PlayerDetail({ player }: { player: any }) {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <p className="text-base font-bold">{shortDate}</p>
-                    <p className="text-sm text-gray-100 mt-1">{battleInfo.type === "ranked" ? "랭크" : "일반"}</p>
+                    <p className="text-sm text-gray-100 mt-1">{battleInfo.type === "soloRanked" ? "랭크전" : "트로피 리그"}</p>
+                    {/* 랭크전에서만 트로피 변화량 출력 */}
+                    {battleInfo.type === "ranked" && (
+                      <p className="text-sm text-gray-100 mt-1 flex items-center gap-1">
+                        <img
+                          src="/icon/icon_trophy.png"
+                          alt="트로피 변화량"
+                          className="w-5 h-5 inline-block mr-1"
+                        />
+                        {trophyChange === 0 ? (
+                          <span className="text-base font-semibold">트로피 변동없음</span>
+                        ) : (
+                          <span className="text-lg font-bold">
+                            {trophyChange > 0 ? `+${trophyChange}` : trophyChange}
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-col items-end">
-
                     <span
-                      className={`text-sm font-bold px-2 py-1 rounded 
-                        ${result === "victory" ? "bg-green-500" : result === "defeat" ? "bg-red-500" : "bg-gray-400"}
-                      `}
+                      className={`text-sm font-bold px-2 py-1 rounded
+                        ${(mode === "soloShowdown" || mode === "duoShowdown") && typeof battleInfo.rank === "number"
+                          ? battleInfo.rank <= 2
+                            ? "bg-yellow-400 text-gray-900"
+                            : battleInfo.rank <= 4
+                              ? "bg-gray-300 text-gray-900"
+                              : "bg-red-500"
+                          : result === "victory"
+                            ? "bg-green-500"
+                            : result === "defeat"
+                              ? "bg-red-500"
+                              : "bg-gray-400"
+                        }
+                     `}
                     >
-                      {resultKoMap[result] || result}
+                      {resultText}
                     </span>
+
                     <Image src={iconPath} alt="mode" width={32} height={32} className="rounded mb-1" />
                     <span className="text-xs font-semibold mt-1">
                       {modeKoMap[mode] || mode}
                     </span>
                   </div>
                 </div>
+
                 <div className="flex items-center gap-3 mt-2">
                   {/* 브롤러 이미지 */}
                   <div className="w-12 h-12 rounded overflow-hidden bg-white/20 flex items-center justify-center">

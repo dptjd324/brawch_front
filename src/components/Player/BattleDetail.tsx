@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from "next/link";
 
 interface BattleDetailDto {
     battleTime: string;
@@ -15,7 +16,7 @@ interface BattleDetailDto {
             brawlerName: string;
         }[];
     }[];
-    participants?: {
+    players?: {
         name: string;
         tag: string;
         brawlerName: string;
@@ -51,12 +52,13 @@ function getBrawlerImagePath(name: string) {
 }
 
 export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
-    const hasParticipants = Array.isArray(battle.participants) && battle.participants.length > 0;
+    const hasParticipants = Array.isArray(battle.players) && battle.players.length > 0;
     const hasTeams = Array.isArray(battle.teams) && battle.teams.length > 0;
 
-    const isSoloShowdown = battle.gameMode === "showdown" && battle.participants?.length === 10;
-    const isDuoShowdown = battle.gameMode === "showdown" && battle.participants?.length === 12;
+    const isSoloShowdown = battle.gameMode === "soloShowdown" && Array.isArray((battle as any).players) && (battle as any).players.length === 10;
+    const isDuoShowdown = battle.gameMode === "showdown" && battle.players?.length === 12;
     const isDuels = battle.gameMode === "duels" && battle.teams?.length === 2 && battle.teams[0].players.length === 3;
+    const players = (battle as any).players as Participant[] | undefined;
 
     type Participant = {
         name: string;
@@ -65,7 +67,7 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
     };
 
     const duoTeams: Participant[][] = isDuoShowdown
-        ? battle.participants!.reduce((acc: Participant[][], curr, idx) => {
+        ? battle.players!.reduce((acc: Participant[][], curr, idx) => {
             if (idx % 2 === 0) acc.push([curr]);
             else acc[acc.length - 1].push(curr);
             return acc;
@@ -73,7 +75,6 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
         : [];
     return (
         <div className="p-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white space-y-10">
-            {/* 상단 요약 정보 */}
             <div className="flex flex-col items-center mb-10">
                 <h1 className="text-3xl font-extrabold text-gray-900 bg-gradient-to-r from-teal-200 to-cyan-400 px-4 py-2 rounded-lg shadow mb-6 tracking-tight border-2 border-teal-400">
                     전투 상세 정보
@@ -100,15 +101,26 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                 </div>
             </div>
 
-            {/* SOLO SHOWDOWN */}
-            {isSoloShowdown && (
+            {/* 솔로쇼다운 */}
+            {isSoloShowdown && players && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {battle.participants!.map((player, idx) => (
+                    {players.map((player, idx) => (
                         <div key={player.tag} className="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border border-teal-700">
                             <div className="flex items-center gap-4">
-                                <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={56} height={56} className="rounded-full border-2 border-teal-400 bg-gray-700" />
+                                <Image
+                                    src={getBrawlerImagePath(player.brawlerName)}
+                                    alt={player.brawlerName}
+                                    width={56}
+                                    height={56}
+                                    className="rounded-full border-2 border-teal-400 bg-gray-700"
+                                />
                                 <div>
-                                    <p className="font-bold text-lg text-teal-300">{player.name}</p>
+                                    <p className="font-bold text-lg text-teal-300">
+                                        <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline">
+                                            {player.name}
+                                        </Link>
+                                        <span className="text-sm text-gray-400"> ({idx + 1}위)</span>
+                                    </p>
                                     <p className="text-sm text-gray-300">{player.brawlerName}</p>
                                 </div>
                             </div>
@@ -116,6 +128,7 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                     ))}
                 </div>
             )}
+
 
             {isDuoShowdown && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -127,7 +140,11 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                                     <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
                                         <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-cyan-400 bg-gray-700" />
                                         <div>
-                                            <p className="font-semibold text-cyan-200">{player.name}</p>
+                                            <p className="font-semibold text-white">
+                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
+                                                    {player.name}
+                                                </Link>
+                                            </p>
                                             <p className="text-sm text-gray-300">{player.brawlerName}</p>
                                         </div>
                                     </div>
@@ -156,7 +173,11 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                                     <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
                                         <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-white bg-gray-700" />
                                         <div>
-                                            <p className="font-semibold text-white">{player.name}</p>
+                                            <p className="font-semibold text-white">
+                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
+                                                    {player.name}
+                                                </Link>
+                                            </p>
                                             <p className="text-sm text-gray-300">{player.brawlerName}</p>
                                         </div>
                                     </div>
@@ -185,7 +206,11 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                                     <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
                                         <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-white bg-gray-700" />
                                         <div>
-                                            <p className="font-semibold text-white">{player.name}</p>
+                                            <p className="font-semibold text-white">
+                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
+                                                    {player.name}
+                                                </Link>
+                                            </p>
                                             <p className="text-sm text-gray-300">{player.brawlerName}</p>
                                         </div>
                                     </div>
@@ -196,7 +221,6 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                 </div>
             )}
 
-            {/* 참가자/팀 정보 없음 */}
             {!hasParticipants && !hasTeams && (
                 <div className="text-center text-red-400 text-lg mt-8">
                     전투에 대한 참가자 정보를 찾을 수 없습니다.
