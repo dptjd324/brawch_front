@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
+import { getBrawlerImageUrlById } from "@/utils/brawlerData";
 
 interface Brawler {
   brawlerId: number;
@@ -68,17 +69,11 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
         <div className="flex items-center justify-between bg-gray-800 p-6 rounded-lg shadow-md">
           {/* 브롤러 정보 */}
           <div className="flex items-center gap-6">
-            {brawler.imageUrl ? (
-              <img
-                src={brawler.imageUrl}
-                alt={brawler.nameKr}
-                className="w-32 h-32 rounded-xl shadow-md"
-              />
-            ) : (
-              <div className="w-32 h-32 bg-gray-700 rounded-xl flex items-center justify-center text-gray-400">
-                이미지 없음
-              </div>
-            )}
+            <img
+              src={getBrawlerImageUrlById(brawler.brawlerId)}
+              alt={brawler.nameKr}
+              className="w-32 h-32 rounded-xl shadow-md"
+            />
             <div>
               <h2 className="text-3xl font-bold">{brawler.nameKr}</h2>
               <p className="text-gray-400">{brawler.roleKr} | {brawler.rarityKr}</p>

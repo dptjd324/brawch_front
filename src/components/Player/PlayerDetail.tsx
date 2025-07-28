@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
-
+import { getBrawlerImageUrl } from "@/utils/brawlerData";
 // 브롤러 영어-한글 매핑 전체 예시 (필요시 최신 브롤러 추가)
 const brawlerNameMap: { [key: string]: string } = {
   "Shelly": "쉘리",
@@ -379,11 +379,10 @@ export default function PlayerDetail({ player }: { player: any }) {
                   {/* 브롤러 이미지 */}
                   <div className="w-12 h-12 rounded overflow-hidden bg-white/20 flex items-center justify-center">
                     <Image
-                      src={getBrawlerImagePath(myBrawlerKey)}
+                      src={getBrawlerImageUrl(myBrawlerKey)}
                       alt={`${myBrawler} 이미지`}
                       width={48}
                       height={48}
-                      className="object-cover"
                     />
                   </div>
                   <div>

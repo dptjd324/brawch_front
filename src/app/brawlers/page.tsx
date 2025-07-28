@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-
+import { getBrawlerImageUrlById } from "@/utils/brawlerData";
 
 interface BrawlerData {
   brawlerId: number;
@@ -160,7 +160,7 @@ export default function BrawlersPage() {
               <Link href={`/brawlers/${b.brawlerId}`} key={b.brawlerId}>
                 <div className="flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition-transform duration-150">
                   <img
-                    src={b.imageUrl}
+                    src={getBrawlerImageUrlById(b.brawlerId)}
                     alt={b.nameKr}
                     loading="lazy"
                     className="w-14 h-14 object-contain rounded-xl border-2 border-gray-700 shadow hover:shadow-lg bg-gray-800"
