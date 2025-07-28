@@ -21,6 +21,11 @@ interface BattleDetailDto {
         tag: string;
         brawlerName: string;
     }[];
+    starPlayer?: {
+        name: string;
+        tag: string;
+        brawlerName: string;
+    };
 }
 const modeKoMap: { [key: string]: string } = {
     gemGrab: "젬 그랩",
@@ -73,6 +78,7 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
             return acc;
         }, [])
         : [];
+
     return (
         <div className="p-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white space-y-10">
             <div className="flex flex-col items-center mb-10">
@@ -100,7 +106,29 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                     </div>
                 </div>
             </div>
-
+            {battle.starPlayer && (
+                <div className="mt-6 flex flex-col items-center bg-yellow-400/90 text-gray-900 p-4 rounded-xl shadow-lg border-2 border-yellow-500 w-fit mx-auto">
+                    <h2 className="text-xl font-extrabold mb-2">⭐ 스타 플레이어</h2>
+                    <div className="flex items-center gap-4">
+                        <Image
+                            src={getBrawlerImagePath(battle.starPlayer.brawlerName)}
+                            alt={battle.starPlayer.brawlerName}
+                            width={64}
+                            height={64}
+                            className="rounded-full border-4 border-yellow-600 bg-gray-700"
+                        />
+                        <div className="flex flex-col text-center">
+                            <Link
+                                href={`/players/${battle.starPlayer.tag.replace('#', '')}`}
+                                className="font-bold text-lg hover:underline"
+                            >
+                                {battle.starPlayer.name}
+                            </Link>
+                            <span className="text-sm">{battle.starPlayer.brawlerName}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* 솔로쇼다운 */}
             {isSoloShowdown && players && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

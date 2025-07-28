@@ -29,7 +29,7 @@ export const Top = () => {
               브롤러
             </div>
           </Link>
-          <Link href="/modes">
+          <Link href="/mode">
             <div className="cursor-pointer text-xl font-bold text-gray-800 hover:text-white transition hover:scale-110">
               모드
             </div>
