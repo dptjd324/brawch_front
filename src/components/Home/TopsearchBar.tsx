@@ -17,6 +17,7 @@ export function TopsearchBar() {
     } else {
       alert("존재하지 않는 플레이어 태그입니다.");
     }
+    setSearchQuery(""); // 입력값 초기화
   };
 
   return (
