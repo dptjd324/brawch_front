@@ -53,7 +53,7 @@ export function SearchBar() {
         value={searchQuery}
         onChange={handleInputChange}
         className="flex-grow bg-transparent h-12 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-gray-600"
-        placeholder="태그를 입력하세요 (영문+숫자)"
+        placeholder="태그를 입력하세요(# 제외)"
         aria-label="Search input"
         maxLength={12} // 태그 최대 12자 제한
       />

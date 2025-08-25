@@ -188,18 +188,23 @@ export default function PlayerDetail({ player }: { player: any }) {
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col">
           <div className="flex items-center mb-4">
             <h3 className="text-3xl font-bold text-teal-400 mr-3">트로피</h3>
-            <img
-              src="/icon/icon_trophy.png"
-              alt="트로피 아이콘"
-              className="w-8 h-8"
-            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col items-center">
+              <img
+                src="/icon/icon_trophy2.png"
+                alt="트로피2 아이콘"
+                className="w-12 h-12 mb-2"
+              />
               <p className="text-lg text-gray-300">현재 트로피</p>
               <p className="text-2xl font-bold text-white">{player.trophies ?? "없음"}</p>
             </div>
             <div className="flex flex-col items-center">
+              <img
+                src="/icon/icon_All-time record_trophy.png"
+                alt="역대최고 트로피 아이콘"
+                className="w-12 h-12 mb-2"
+              />
               <p className="text-lg text-gray-300">역대 최고</p>
               <p className="text-2xl font-bold text-white">{player.highestTrophies ?? "없음"}</p>
             </div>
@@ -352,9 +357,9 @@ export default function PlayerDetail({ player }: { player: any }) {
                     <span
                       className={`text-sm font-bold px-2 py-1 rounded
                         ${(mode === "soloShowdown" || mode === "duoShowdown") && typeof battleInfo.rank === "number"
-                          ? battleInfo.rank <= 2
+                          ? battleInfo.rank <= 4
                             ? "bg-yellow-400 text-gray-900"
-                            : battleInfo.rank <= 4
+                            : battleInfo.rank == 5
                               ? "bg-gray-300 text-gray-900"
                               : "bg-red-500"
                           : result === "victory"

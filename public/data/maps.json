@@ -1,0 +1,692 @@
+{
+  "Gem Grab": [
+    {
+      "id": "15000008",
+      "name": "Crystal Arcade"
+    },
+    {
+      "id": "15000009",
+      "name": "Deathcap Trap"
+    },
+    {
+      "id": "15000115",
+      "name": "Double Swoosh"
+    },
+    {
+      "id": "15001052",
+      "name": "Extreme Nonchalance"
+    },
+    {
+      "id": "15000010",
+      "name": "Gem Fort"
+    },
+    {
+      "id": "15000007",
+      "name": "Hard Rock Mine"
+    },
+    {
+      "id": "15000931",
+      "name": "Lilygear Lake"
+    },
+    {
+      "id": "15000932",
+      "name": "Local Restaurants"
+    },
+    {
+      "id": "150001026",
+      "name": "On a Roll"
+    },
+    {
+      "id": "15000499",
+      "name": "Open Space"
+    },
+    {
+      "id": "15000343",
+      "name": "Rustic Arcade"
+    },
+    {
+      "id": "15001027",
+      "name": "Storage Sector"
+    },
+    {
+      "id": "15000870",
+      "name": "Tango"
+    },
+    {
+      "id": "15000011",
+      "name": "Undermine"
+    },
+    {
+      "id": "15001051",
+      "name": "Whisper Vale"
+    }
+  ],
+  "Heist": [
+    {
+      "id": "15000072",
+      "name": "Bridge Too Far"
+    },
+    {
+      "id": "15001063",
+      "name": "Corner Cave"
+    },
+    {
+      "id": "15000023",
+      "name": "G.G. Mortuary"
+    },
+    {
+      "id": "15000053",
+      "name": "Hot Potato"
+    },
+    {
+      "id": "15000018",
+      "name": "Kaboom Canyon"
+    },
+    {
+      "id": "15000137",
+      "name": "Pit Stop"
+    },
+    {
+      "id": "15000933",
+      "name": "Plain Text"
+    },
+    {
+      "id": "15000019",
+      "name": "Safe Zone"
+    },
+    {
+      "id": "15001024",
+      "name": "Subway Turfers"
+    },
+    {
+      "id": "15001062",
+      "name": "Zip Zap Zoom"
+    }
+  ],
+  "Bounty": [
+    {
+      "id": "15000935",
+      "name": "Brace for Impact"
+    },
+    {
+      "id": "15000083",
+      "name": "Dry Season"
+    },
+    {
+      "id": "15000022",
+      "name": "Hideout"
+    },
+    {
+      "id": "15000082",
+      "name": "Layer Cake"
+    },
+    {
+      "id": "15000295",
+      "name": "No Excuses"
+    },
+    {
+      "id": "15000005",
+      "name": "Shooting Star"
+    },
+    {
+      "id": "15001067",
+      "name": "Starrburst"
+    }
+  ],
+  "Brawl Ball": [
+    {
+      "id": "15000024",
+      "name": "Backyard Bowl"
+    },
+    {
+      "id": "15000143",
+      "name": "Baech Ball"
+    },
+    {
+      "id": "15000132",
+      "name": "Center Stage"
+    },
+    {
+      "id": "15001020",
+      "name": "Grass Knot"
+    },
+    {
+      "id": "15001054",
+      "name": "Match 1153581321"
+    },
+    {
+      "id": "15000118",
+      "name": "Pinball Dreams"
+    },
+    {
+      "id": "15000026",
+      "name": "Pinhole Punt"
+    },
+    {
+      "id": "15000928",
+      "name": "Priceless Cactus"
+    },
+    {
+      "id": "15000929",
+      "name": "Rooftop Runners"
+    },
+    {
+      "id": "15001053",
+      "name": "Sidetrack"
+    },
+    {
+      "id": "15000050",
+      "name": "Sneaky Fields"
+    },
+    {
+      "id": "15001021",
+      "name": "Spiraling Out"
+    },
+    {
+      "id": "15000144",
+      "name": "Sunny Soccer"
+    },
+    {
+      "id": "15000051",
+      "name": "Super Beach"
+    },
+    {
+      "id": "15000025",
+      "name": "Triple Dribble"
+    }
+  ],
+  "Solo Showdown": [
+    {
+      "id": "15000024",
+      "name": "Backyard Bowl"
+    },
+    {
+      "id": "15000143",
+      "name": "Baech Ball"
+    },
+    {
+      "id": "15000132",
+      "name": "Center Stage"
+    },
+    {
+      "id": "15001020",
+      "name": "Grass Knot"
+    },
+    {
+      "id": "15001054",
+      "name": "Match 1153581321"
+    },
+    {
+      "id": "15000118",
+      "name": "Pinball Dreams"
+    },
+    {
+      "id": "15000026",
+      "name": "Pinhole Punt"
+    },
+    {
+      "id": "15000928",
+      "name": "Priceless Cactus"
+    },
+    {
+      "id": "15000929",
+      "name": "Rooftop Runners"
+    },
+    {
+      "id": "15001053",
+      "name": "Sidetrack"
+    },
+    {
+      "id": "15000050",
+      "name": "Sneaky Fields"
+    },
+    {
+      "id": "15001021",
+      "name": "Spiraling Out"
+    },
+    {
+      "id": "15000144",
+      "name": "Sunny Soccer"
+    },
+    {
+      "id": "15000051",
+      "name": "Super Beach"
+    },
+    {
+      "id": "15000025",
+      "name": "Triple Dribble"
+    }
+  ],
+  "Duo Showdown": [
+    {
+      "id": "15000957",
+      "name": "Acid Lakes"
+    },
+    {
+      "id": "15000954",
+      "name": "Cavern Churn"
+    },
+    {
+      "id": "15000988",
+      "name": "Core of Orbit"
+    },
+    {
+      "id": "15001013",
+      "name": "Crystal Eye Castle"
+    },
+    {
+      "id": "15000966",
+      "name": "Double Trouble"
+    },
+    {
+      "id": "15000951",
+      "name": "Feast or Famine"
+    },
+    {
+      "id": "15000960",
+      "name": "Flying Fantasies"
+    },
+    {
+      "id": "15000911",
+      "name": "Lilypond Grove"
+    },
+    {
+      "id": "15000982",
+      "name": "Mystical Thirty Three"
+    },
+    {
+      "id": "15000948",
+      "name": "Rockwall Brawl"
+    },
+    {
+      "id": "15000969",
+      "name": "Safety Center"
+    },
+    {
+      "id": "15001016",
+      "name": "Seeker"
+    },
+    {
+      "id": "15000945",
+      "name": "Skull Creek"
+    },
+    {
+      "id": "15000985",
+      "name": "Waveform"
+    }
+  ],
+  "Spirit Wars": [
+    {
+      "id": "15000824",
+      "name": "Divine Descent"
+    },
+    {
+      "id": "15000825",
+      "name": "Hellish Harvest"
+    },
+    {
+      "id": "15000826",
+      "name": "Final Frontier"
+    },
+    {
+      "id": "15000827",
+      "name": "Infernal Invasion"
+    },
+    {
+      "id": "15000828",
+      "name": "Celestial Crusade"
+    },
+    {
+      "id": "15000829",
+      "name": "Abyssal Assault"
+    },
+    {
+      "id": "15000830",
+      "name": "Radiant Rampage"
+    },
+    {
+      "id": "15000831",
+      "name": "Underworld Uprising"
+    }
+  ],
+  "Trophy Thieves": [
+    {
+      "id": "15001030",
+      "name": "Case of the Mondays"
+    },
+    {
+      "id": "15001068",
+      "name": "Million Dollars"
+    },
+    {
+      "id": "15001037",
+      "name": "Paper Jam"
+    },
+    {
+      "id": "15001036",
+      "name": "Thin Walls"
+    },
+    {
+      "id": "15000206",
+      "name": "Thophy Trespass"
+    }
+  ],
+  "Hot Zone": [
+    {
+      "id": "15000292",
+      "name": "Open Business"
+    },
+    {
+      "id": "15000293",
+      "name": "Parallel Plays"
+    },
+    {
+      "id": "15000300",
+      "name": "Ring Of Fire"
+    },
+    {
+      "id": "15000306",
+      "name": "Dueling Beetles"
+    },
+    {
+      "id": "15000527",
+      "name": "Open Zone"
+    },
+    {
+      "id": "15000927",
+      "name": "Fishing Bed"
+    },
+    {
+      "id": "15001022",
+      "name": "Abracadabra"
+    },
+    {
+      "id": "15001023",
+      "name": "In The Liminal"
+    }
+  ],
+  "Knockout": [
+    {
+      "id": "15000367",
+      "name": "Goldarm Gulch"
+    },
+    {
+      "id": "15000368",
+      "name": "Bells Rock"
+    },
+    {
+      "id": "15000429",
+      "name": "Deep End"
+    },
+    {
+      "id": "15000440",
+      "name": "Flaring Phoenix"
+    },
+    {
+      "id": "15000502",
+      "name": "Flowing Springs"
+    },
+    {
+      "id": "15000528",
+      "name": "New Perspective"
+    },
+    {
+      "id": "15000548",
+      "name": "Out In The Open"
+    },
+    {
+      "id": "15000581",
+      "name": "Healthy Middle Ground"
+    },
+    {
+      "id": "15000703",
+      "name": "New Horizons"
+    },
+    {
+      "id": "15000734",
+      "name": "Four Levels"
+    },
+    {
+      "id": "15000882",
+      "name": "H For..."
+    },
+    {
+      "id": "15001018",
+      "name": "Double Decker"
+    },
+    {
+      "id": "15001019",
+      "name": "Streets With No Name"
+    },
+    {
+      "id": "15001058",
+      "name": "Think Ahead"
+    },
+    {
+      "id": "15001059",
+      "name": "Call Of The Water"
+    }
+  ],
+  "Basket Brawl": [
+    {
+      "id": "15000384",
+      "name": "Ball Hog"
+    },
+    {
+      "id": "15000385",
+      "name": "Reversal"
+    },
+    {
+      "id": "15000386",
+      "name": "Pocket Pass"
+    },
+    {
+      "id": "15000387",
+      "name": "Turnover"
+    },
+    {
+      "id": "15000388",
+      "name": "Alley Oop"
+    },
+    {
+      "id": "15000389",
+      "name": "Slam Dunk"
+    },
+    {
+      "id": "15000390",
+      "name": "Triple-Double"
+    }
+  ],
+  "Volley Brawl": [
+    {
+      "id": "15000377",
+      "name": "Tiger Leap"
+    },
+    {
+      "id": "15000378",
+      "name": "Block Party"
+    },
+    {
+      "id": "15000379",
+      "name": "Power Alley"
+    },
+    {
+      "id": "15000380",
+      "name": "Strong Side"
+    },
+    {
+      "id": "15000381",
+      "name": "Pancake"
+    },
+    {
+      "id": "15000382",
+      "name": "Jungle Ball"
+    },
+    {
+      "id": "15000383",
+      "name": "Floater"
+    }
+  ],
+  "Duels": [
+    {
+      "id": "15000460",
+      "name": "No Surrender"
+    },
+    {
+      "id": "15000461",
+      "name": "Shrouding Serpent"
+    },
+    {
+      "id": "15000463",
+      "name": "Warriors Way"
+    },
+    {
+      "id": "15000468",
+      "name": "Monkey Maze"
+    },
+    {
+      "id": "15001060",
+      "name": "Coin Flip"
+    },
+    {
+      "id": "15001061",
+      "name": "Search And Destroy"
+    }
+  ],
+  "Wipeout": [
+    {
+      "id": "15001055",
+      "name": "Twentyfive To Two"
+    },
+    {
+      "id": "15001056",
+      "name": "Time Flies"
+    }
+  ],
+  "Wipeout 5v5": [
+    {
+      "id": "15000920",
+      "name": "Big Battle Basin"
+    },
+    {
+      "id": "15000973",
+      "name": "Mirages Of Madness"
+    },
+    {
+      "id": "15001049",
+      "name": "Hee Hee"
+    },
+    {
+      "id": "15001050",
+      "name": "Island of Finality"
+    }
+  ],
+  "Brawl Ball 5v5": [
+    {
+      "id": "15000919",
+      "name": "Stockpile Stadium"
+    },
+    {
+      "id": "15000971",
+      "name": "Siberian Stand Off"
+    },
+    {
+      "id": "15001043",
+      "name": "Insane Streamer"
+    },
+    {
+      "id": "15001044",
+      "name": "Pocket Pleasures"
+    }
+  ],
+  "Gem Grab 5v5": [
+    {
+      "id": "15000979",
+      "name": "Arctic Ambush"
+    },
+    {
+      "id": "15000980",
+      "name": "Treasure Island"
+    },
+    {
+      "id": "15001045",
+      "name": "Cobblestone Swamp"
+    },
+    {
+      "id": "15001046",
+      "name": "Public Transport"
+    }
+  ],
+  "Knockout 5v5": [
+    {
+      "id": "15000923",
+      "name": "Unhappy Arena"
+    },
+    {
+      "id": "15000975",
+      "name": "Survival Of The Meanest"
+    },
+    {
+      "id": "15001047",
+      "name": "Brawlerverse"
+    },
+    {
+      "id": "15001048",
+      "name": "The Emptiness Machine"
+    }
+  ],
+  "Unnamed: 54": [
+    {
+      "id": "16개",
+      "name": "15000958"
+    }
+  ],
+  "name.18": [
+    {
+      "id": "6개",
+      "name": "15000753.0"
+    }
+  ],
+  "name.19": [
+    {
+      "id": "6개",
+      "name": "15000850.0"
+    }
+  ],
+  "name.20": [
+    {
+      "id": "4개",
+      "name": "15000996.0"
+    }
+  ],
+  "name.21": [
+    {
+      "id": "3개",
+      "name": "15000909.0"
+    }
+  ],
+  "name.22": [
+    {
+      "id": "7개",
+      "name": "15000911.0"
+    }
+  ],
+  "name.23": [
+    {
+      "id": "4개",
+      "name": "15000925.0"
+    }
+  ],
+  "name.24": [
+    {
+      "id": "1개",
+      "name": "15001028.0"
+    }
+  ],
+  "name.25": [
+    {
+      "id": "6개",
+      "name": "15001029.0"
+    }
+  ]
+}
