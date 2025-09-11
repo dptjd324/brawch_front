@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import MapTierListClient from './MapTierListClient';
 
 type MapRow = { mode: string; id: string | number; name: string };
 
@@ -15,7 +16,7 @@ export default function MapDetailClient({
   const [mapItem, setMapItem] = useState<MapRow | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 여러 확장자 자동 재시도
+
   const exts = useMemo(() => ['png', 'webp', 'jpg', 'jpeg', 'PNG'], []);
   const [idx, setIdx] = useState(0);
   const imageSrc = useMemo(() => `/map/${modeKey}/${id}.${exts[idx]}`, [modeKey, id, exts, idx]);
@@ -71,54 +72,48 @@ export default function MapDetailClient({
     })();
   }, [modeKey, id]);
 
-  return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-6 flex items-center gap-3">
-
-
-          <div className="flex items-center gap-2 ml-auto opacity-80">
-            <img src={iconSrc} alt="mode icon" className="w-6 h-6 object-contain" onError={iconFallback} />
-            <span className="text-sm text-gray-600">{modeKey}</span>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="bg-white rounded-xl shadow p-10 text-center text-gray-500">불러오는 중…</div>
-        ) : !mapItem ? (
-          <div className="bg-white rounded-xl shadow p-10 text-center text-gray-500">해당 맵을 찾을 수 없습니다.</div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow p-6 md:p-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="w-full">
+   return (
+    <div className="min-h-screen bg-gradient-to-br from-[#1a2233] via-[#232b36] to-[#182133] p-16">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="flex flex-col gap-16">
+          {/* 상단 맵/모드 박스 */}
+          <div className="flex flex-row gap-16 justify-center items-start">
+            {/* 맵 박스 */}
+            <div className="bg-[#232b36] rounded-3xl shadow-2xl p-0 w-[540px] flex flex-col items-center border border-[#2dd4bf]/30">
+              {/* 모드 정보 + 아이콘 */}
+              <div className="flex items-center w-full px-12 pt-10 pb-5 gap-5">
+                <div className="bg-[#2dd4bf] rounded-2xl p-4 flex items-center justify-center shadow">
+                  <img
+                    src={iconSrc}
+                    alt={`${modeKey} 아이콘`}
+                    className="w-14 h-14"
+                    onError={iconFallback}
+                  />
+                </div>
+                <span className="text-3xl font-bold text-[#2dd4bf] capitalize tracking-wide drop-shadow">
+                  {modeKey}
+                </span>
+              </div>
+              {/* 맵 이름 */}
+              <div className="bg-gray-700 rounded-t-3xl w-full px-12 py-6 text-2xl font-bold text-[#2dd4bf] flex items-center shadow">
+                맵 <span className="ml-5 text-white">{mapItem?.name ?? ''}</span>
+              </div>
+              {/* 맵 이미지 */}
+              <div className="bg-[#4fd1ff] w-full flex-1 flex items-center justify-center rounded-b-3xl p-8 min-h-[600px]">
                 <img
                   src={imageSrc}
-                  alt={mapItem.name}
-                  className="w-full max-w-2xl aspect-video object-contain rounded-xl bg-gray-200"
+                  alt={mapItem?.name}
+                  className="w-full h-full object-cover rounded-2xl shadow-lg border border-white/30"
                   onError={bigFallback}
                 />
-                <div className="mt-2 text-xs text-gray-500 select-all">
-                  trying: <code>{imageSrc}</code>
-                </div>
               </div>
-
-              <div className="space-y-4">
-                <h1 className="text-2xl md:text-3xl font-bold">{mapItem.name}</h1>
-                <div className="text-gray-600">
-                  <div className="font-semibold">Mode</div>
-                  <div>{mapItem.mode}</div>
-                </div>
-                <div className="text-gray-600">
-                  <div className="font-semibold">Map ID</div>
-                  <div>{String(mapItem.id)}</div>
-                </div>
-                <div className="pt-2 flex gap-2">
-
-                </div>
-              </div> 
+            </div>
+            {/* 티어 테이블 */}
+            <div className="bg-[#232b36] rounded-3xl shadow-2xl flex-1 p-0 border border-[#2dd4bf]/20 min-w-[700px]">
+              <MapTierListClient modeKey={modeKey} id={id} />
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

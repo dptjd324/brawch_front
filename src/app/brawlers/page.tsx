@@ -181,10 +181,9 @@ export default function BrawlersPage() {
             <span className="text-center">순위</span>
             <span className="text-center">티어</span>
             <span className="text-center">브롤러</span>
-            <span className="text-center">조합</span>
             <span className="text-center">승률</span>
             <span className="text-center">픽률</span>
-            <span className="text-center">카운터</span>
+      
           </div>
           {/* 브롤러 리스트 */}
           <div className="flex flex-col overflow-y-auto flex-grow w-full h-full">
@@ -241,18 +240,9 @@ export default function BrawlersPage() {
                     </span>
                   </div>
                   {/* 조합 */}
-                  <div className="flex gap-2 justify-center">
-                    <div className="w-9 h-9 rounded-xl bg-yellow-300 shadow" />
-                    <div className="w-9 h-9 rounded-xl bg-purple-300 shadow" />
-                  </div>
                   <span className="text-center font-bold text-gray-300">{winRate}</span>
                   <span className="text-center font-bold text-gray-300">{pickRate}</span>
                   {/* 카운터 */}
-                  <div className="flex gap-2 justify-center">
-                    <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
-                    <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
-                    <div className="w-9 h-9 rounded-xl bg-rose-300 shadow" />
-                  </div>
                 </div>
               );
             })}

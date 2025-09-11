@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { getBrawlerImageUrlById } from "@/utils/brawlerData";
 
+
 interface Brawler {
   brawlerId: number;
   nameKr: string;
@@ -96,15 +97,6 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
               <p className="text-sm text-gray-300">픽률: 30%</p>
               <p className="text-sm text-gray-300">표본수: 1000</p>
             </div>
-            <div className="flex flex-col items-center bg-gray-700 p-4 rounded-lg shadow">
-              <span className="font-bold text-lg">카운터</span>
-              <div className="flex gap-2 mt-2">
-                <div className="w-8 h-8 bg-red-400 rounded-full"></div>
-                <div className="w-8 h-8 bg-red-400 rounded-full"></div>
-                <div className="w-8 h-8 bg-red-400 rounded-full"></div>
-              </div>
-              <p className="text-sm text-gray-300 mt-2">승률: 9%, 11%, 15%</p>
-            </div>
           </div>
         </div>
 
@@ -147,7 +139,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
         </div>
 
         {/* 기본정보 */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
+        {/* <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
           <h3 className="font-bold text-lg mb-4">기본정보</h3>
           <table className="w-full text-sm text-left text-gray-300">
             <thead>
@@ -191,7 +183,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
               </tr>
             </tbody>
           </table>
-        </div>
+        </div> */}
 
         {/* 스킬 상세설명 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
