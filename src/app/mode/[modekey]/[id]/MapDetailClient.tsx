@@ -96,7 +96,7 @@ export default function MapDetailClient({
               </div>
               {/* 맵 이름 */}
               <div className="bg-gray-700 rounded-t-3xl w-full px-12 py-6 text-2xl font-bold text-[#2dd4bf] flex items-center shadow">
-                맵 <span className="ml-5 text-white">{mapItem?.name ?? ''}</span>
+                <span className="ml-5 text-white">{mapItem?.name ?? ''}</span>
               </div>
               {/* 맵 이미지 */}
               <div className="bg-[#4fd1ff] w-full flex-1 flex items-center justify-center rounded-b-3xl p-8 min-h-[600px]">

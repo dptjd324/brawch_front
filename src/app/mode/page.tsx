@@ -132,7 +132,7 @@ export default function ModesPage() {
   const modeKeys = useMemo(() => Object.keys(modeMaps), [modeMaps]);
 
   return (
-    <div className="bg-[#182133] min-h-screen p-6 font-sans">
+    <div className="bg-[#182133] min-h-screen p-6">
       {/* 진행 중인 모드 */}
       <div className="mb-10 flex flex-col  items-center">
         <h2 className="text-2xl font-bold bg-[#2dd4bf] text-white px-6 py-3 rounded-2xl mb-8 w-fit shadow-lg">

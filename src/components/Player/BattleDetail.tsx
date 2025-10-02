@@ -26,11 +26,16 @@ interface BattleDetailDto {
         tag: string;
         brawlerName: string;
     };
+    event?: {
+        map: string;
+        mode: string;
+    };
 }
 const modeKoMap: { [key: string]: string } = {
     gemGrab: "젬 그랩",
     showdown: "솔로 쇼다운",
     duoShowdown: "듀오 쇼다운",
+    trioShowdown: "트리오 쇼다운",
     brawlBall: "브롤볼",
     bounty: "바운티",
     heist: "하이스트",
@@ -61,7 +66,8 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
     const hasTeams = Array.isArray(battle.teams) && battle.teams.length > 0;
 
     const isSoloShowdown = battle.gameMode === "soloShowdown" && Array.isArray((battle as any).players) && (battle as any).players.length === 10;
-    const isDuoShowdown = battle.gameMode === "showdown" && battle.players?.length === 12;
+    const isDuoShowdown = battle.gameMode === "duoshowdown" && battle.players?.length === 12;
+    const isTrioShowdown = battle.gameMode === "trioshowdown" && battle.players?.length === 12;
     const isDuels = battle.gameMode === "duels" && battle.teams?.length === 2 && battle.teams[0].players.length === 3;
     const players = (battle as any).players as Participant[] | undefined;
 
@@ -159,6 +165,30 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
 
 
             {isDuoShowdown && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {duoTeams.map((team, idx) => (
+                        <div key={idx} className="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border border-cyan-700">
+                            <h2 className="text-xl font-bold mb-4 text-cyan-300">듀오 팀 {idx + 1}</h2>
+                            <div className="space-y-4">
+                                {team.map((player) => (
+                                    <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
+                                        <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-cyan-400 bg-gray-700" />
+                                        <div>
+                                            <p className="font-semibold text-white">
+                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
+                                                    {player.name}
+                                                </Link>
+                                            </p>
+                                            <p className="text-sm text-gray-300">{player.brawlerName}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+             {isTrioShowdown && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {duoTeams.map((team, idx) => (
                         <div key={idx} className="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border border-cyan-700">
