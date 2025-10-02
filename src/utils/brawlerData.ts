@@ -85,14 +85,15 @@ export const brawlerIdMap: { [key: string]: number } = {
   "Kenji": 16000085,
   "Shade": 16000086,
   "Juju": 16000087,
-  "Meeple": 16000088,
-  "Ollie": 16000089,
-  "Lumi": 160000890,
-  "Finx": 16000091,
+  "Meeple": 16000089,
+  "Ollie": 16000090,
+  "Lumi": 160000891,
+  "Finx": 16000092,
   "Jae-yong": 16000093,
-  "Kaze": 16000093,
-  "Trunk": 16000094,
-  "Alli": 16000095
+  "Kaze": 16000094,
+  "Trunk": 16000096,
+  "Alli": 16000095,
+  "Mina": 16000097,
 };
 
 export function getBrawlerImageUrl(name: string): string {
