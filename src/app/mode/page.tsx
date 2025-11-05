@@ -27,16 +27,13 @@ type MapItem = { id: number; name: string };
 type ModeMapDict = Record<string, MapItem[]>;
 type ModeLabelDict = Record<string, string>;
 
-
 const toKey = (raw: string) => (raw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
 const normalize = (s: string) => (s || '').toLowerCase().replace(/\s+/g, '').trim();
-
 
 const findMapId = (k: string, mapName: string, dict: ModeMapDict) => {
   const list = dict[k] || [];
   const target = normalize(mapName);
-  const hit = list.find(m => normalize(m.name) === target);
+  const hit = list.find((m) => normalize(m.name) === target);
   return hit?.id;
 };
 
@@ -58,16 +55,20 @@ const withFallback = (e: React.SyntheticEvent<HTMLImageElement>) => {
 
 export default function ModesPage() {
   const [ongoingModes, setOngoingModes] = useState<ModeEvent[]>([]);
-  const [selectedKey, setSelectedKey] = useState<string | null>(null); // 폴더키로 관리
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [modeMaps, setModeMaps] = useState<ModeMapDict>({});
   const [modeLabels, setModeLabels] = useState<ModeLabelDict>({});
   const [loadingModes, setLoadingModes] = useState(true);
   const [loadingMaps, setLoadingMaps] = useState(true);
-  //진행중인 모드 슬라이드 
   const [sliceStart, setSliceStart] = useState(0);
-  const sliceCount = 4; // 한 번에 보여줄 카드 개수
+  const sliceCount = 4;
 
-  // 진행 중 모드 로테이션
+  // ✅ 카테고리 상태 추가
+  const [selectedCategory, setSelectedCategory] = useState<'competitive' | 'trophy'>('competitive');
+
+  const competitiveModes = ['gemgrab', 'bounty', 'hotzone', 'heist', 'brawlball', 'knockout'];
+
+  // 진행 중 모드 로테이션 불러오기
   useEffect(() => {
     (async () => {
       try {
@@ -83,12 +84,11 @@ export default function ModesPage() {
     })();
   }, []);
 
-
+  // 맵 목록 불러오기
   useEffect(() => {
     (async () => {
       try {
         setLoadingMaps(true);
-
         let res = await fetch('http://localhost:8081/api/maps/all', { cache: 'no-store' });
         if (!res.ok) res = await fetch('http://localhost:8081/api/maps', { cache: 'no-store' });
 
@@ -101,19 +101,14 @@ export default function ModesPage() {
           const idNum =
             typeof m.id === 'string' ? parseInt(m.id, 10) : Number.isFinite(m.id) ? (m.id as number) : NaN;
           if (Number.isNaN(idNum)) return;
-
           if (!byKey[key]) byKey[key] = [];
           if (!labels[key]) labels[key] = m.mode;
-
           byKey[key].push({ id: idNum, name: m.name });
         });
 
-
         Object.values(byKey).forEach((list) => list.sort((a, b) => a.name.localeCompare(b.name)));
-
         setModeMaps(byKey);
         setModeLabels(labels);
-
 
         if (!selectedKey) {
           const first = Object.keys(byKey)[0];
@@ -125,16 +120,23 @@ export default function ModesPage() {
         setLoadingMaps(false);
       }
     })();
-
   }, []);
-
 
   const modeKeys = useMemo(() => Object.keys(modeMaps), [modeMaps]);
 
+  // ✅ 카테고리별 필터링된 모드 리스트
+  const filteredModeKeys = useMemo(() => {
+    if (selectedCategory === 'competitive') {
+      return modeKeys.filter((k) => competitiveModes.includes(k));
+    } else {
+      return modeKeys.filter((k) => !competitiveModes.includes(k));
+    }
+  }, [modeKeys, selectedCategory]);
+
   return (
     <div className="bg-[#182133] min-h-screen p-6">
-      {/* 진행 중인 모드 */}
-      <div className="mb-10 flex flex-col  items-center">
+      {/* LIVE 모드 */}
+      <div className="mb-10 flex flex-col items-center">
         <h2 className="text-2xl font-bold bg-[#2dd4bf] text-white px-6 py-3 rounded-2xl mb-8 w-fit shadow-lg">
           LIVE 모드
         </h2>
@@ -147,71 +149,61 @@ export default function ModesPage() {
                 onClick={() => setSliceStart(Math.max(sliceStart - 1, 0))}
                 className="absolute left-[-60px] top-1/2 -translate-y-1/2 bg-gray-700 text-white p-5 rounded-full z-20 shadow-lg hover:bg-gray-800 transition"
                 disabled={sliceStart === 0}
-                style={{ boxShadow: '0 4px 16px #0003' }}
               >
                 ◀
               </button>
               <div className="flex flex-row gap-10 w-full justify-center px-10">
-                {ongoingModes
-                  .slice(sliceStart, sliceStart + sliceCount)
-                  .map((m, i) => {
-                    const k = toKey(m.event.mode);
-                    const mapId = findMapId(k, m.event.map, modeMaps);
-                    const Wrapper: any = mapId ? Link : 'button';
-                    const wrapperProps = mapId
-                      ? { href: `/mode/${k}/${mapId}`, className: 'block' }
-                      : { onClick: () => setSelectedKey(k) };
-
-                    const modeBg = MODE_BG_COLORS[k] || 'bg-gray-300';
-
-                    return (
-                      <Wrapper key={i} {...wrapperProps}>
-                        <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-black/30 flex flex-col w-[320px] h-[520px] bg-white/10 mx-auto">
-
-                          {/* 모드 영역 */}
-                          <div className={`${modeBg} flex items-center gap-4 px-6 py-4`}>
-                            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                              <img
-                                src={`/mode/${k}_icon.png`}
-                                alt={`${m.event.mode} 아이콘`}
-                                className="w-12 h-12 object-contain"
-                                onError={withFallback}
-                              />
-                            </div>
-                            <div className="flex flex-col justify-center items-start">
-                              <span className="text-white text-xl font-bold">{m.event.mode}</span>
-                              <span className="text-white text-base">{m.event.map}</span>
-                            </div>
+                {ongoingModes.slice(sliceStart, sliceStart + sliceCount).map((m, i) => {
+                  const k = toKey(m.event.mode);
+                  const mapId = findMapId(k, m.event.map, modeMaps);
+                  const Wrapper: any = mapId ? Link : 'button';
+                  const wrapperProps = mapId
+                    ? { href: `/mode/${k}/${mapId}`, className: 'block' }
+                    : { onClick: () => setSelectedKey(k) };
+                  const modeBg = MODE_BG_COLORS[k] || 'bg-gray-300';
+                  return (
+                    <Wrapper key={i} {...wrapperProps}>
+                      <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-black/30 flex flex-col w-[320px] h-[520px] bg-white/10 mx-auto">
+                        <div className={`${modeBg} flex items-center gap-4 px-6 py-4`}>
+                          <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                            <img
+                              src={`/mode/${k}_icon.png`}
+                              alt={`${m.event.mode} 아이콘`}
+                              className="w-12 h-12 object-contain"
+                              onError={withFallback}
+                            />
                           </div>
-                          {/* 맵 이미지 영역 */}
-                          <div className="flex-1 flex items-center justify-center bg-gray-100 rounded-b-2xl h-[200px] overflow-hidden">
-                            {mapId ? (
-                              <img
-                                src={`/map/${k}/${mapId}.png`}
-                                alt={m.event.map}
-                                className="object-contain max-h-full max-w-full"
-                                onError={withFallback}
-                              />
-                            ) : (
-                              <img
-                                src="/placeholder.png"
-                                alt="no image"
-                                className="w-20 h-5 object-contain opacity-70"
-                                onError={withFallback}
-                              />
-                            )}
+                          <div className="flex flex-col justify-center items-start">
+                            <span className="text-white text-xl font-bold">{m.event.mode}</span>
+                            <span className="text-white text-base">{m.event.map}</span>
                           </div>
-
                         </div>
-                      </Wrapper>
-                    );
-                  })}
+                        <div className="flex-1 flex items-center justify-center bg-gray-100 rounded-b-2xl h-[200px] overflow-hidden">
+                          {mapId ? (
+                            <img
+                              src={`/map/${k}/${mapId}.png`}
+                              alt={m.event.map}
+                              className="object-contain max-h-full max-w-full"
+                              onError={withFallback}
+                            />
+                          ) : (
+                            <img
+                              src="/placeholder.png"
+                              alt="no image"
+                              className="w-20 h-5 object-contain opacity-70"
+                              onError={withFallback}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </Wrapper>
+                  );
+                })}
               </div>
               <button
                 onClick={() => setSliceStart(Math.min(sliceStart + 1, Math.max(ongoingModes.length - sliceCount, 0)))}
                 className="absolute right-[-60px] top-1/2 -translate-y-1/2 bg-gray-700 text-white p-5 rounded-full z-20 shadow-lg hover:bg-gray-800 transition"
                 disabled={sliceStart + sliceCount >= ongoingModes.length}
-                style={{ boxShadow: '0 4px 16px #0003' }}
               >
                 ▶
               </button>
@@ -222,19 +214,48 @@ export default function ModesPage() {
         </div>
       </div>
 
+      {/* ✅ 카테고리 구분 버튼 */}
+      <div className="flex justify-center mb-8 gap-6">
+        <button
+          className={`px-6 py-3 rounded-2xl font-semibold shadow-lg transition ${
+            selectedCategory === 'competitive'
+              ? 'bg-blue-500 text-white scale-110'
+              : 'bg-gray-600 text-gray-200 hover:scale-105'
+          }`}
+          onClick={() => setSelectedCategory('competitive')}
+        >
+          경쟁전
+        </button>
+        <button
+          className={`px-6 py-3 rounded-2xl font-semibold shadow-lg transition ${
+            selectedCategory === 'trophy'
+              ? 'bg-amber-500 text-white scale-110'
+              : 'bg-gray-600 text-gray-200 hover:scale-105'
+          }`}
+          onClick={() => setSelectedCategory('trophy')}
+        >
+          트로피전
+        </button>
+      </div>
+
       {/* 모드별 맵 */}
-      <div className='Items-center w-full max-w-[1400px] mx-auto'>
-        <h2 className="text-lg font-bold bg-[#2dd4bf]-300 inline-block px-4 py-2 rounded mb-4">모든 맵</h2>
+      <div className="items-center w-full max-w-[1400px] mx-auto">
+        <h2 className="text-lg font-bold bg-[#2dd4bf]-300 inline-block px-4 py-2 rounded mb-4">
+          {selectedCategory === 'competitive' ? '경쟁전 모드' : '트로피전 모드'}
+        </h2>
         <div className="bg-orange-200 p-4 rounded-lg flex flex-wrap gap-4 mb-6">
-          {modeKeys.length === 0 && <span className="text-gray-600">모드 로딩 중...</span>}
-          {modeKeys.map((k) => {
+          {filteredModeKeys.length === 0 && <span className="text-gray-600">모드 로딩 중...</span>}
+          {filteredModeKeys.map((k) => {
             const isSelected = selectedKey === k;
             const label = modeLabels[k] ?? k;
             return (
               <button
                 key={k}
-                className={`w-24 h-24 bg-green-300 rounded-xl flex items-center justify-center overflow-hidden border-2 transition ${isSelected ? 'border-blue-500 scale-110' : 'border-transparent hover:scale-105'
-                  }`}
+                className={`w-24 h-24 bg-green-300 rounded-xl flex items-center justify-center overflow-hidden border-2 transition ${
+                  isSelected
+                    ? 'border-blue-500 scale-110'
+                    : 'border-transparent hover:scale-105'
+                }`}
                 title={label}
                 onClick={() => setSelectedKey(k)}
               >

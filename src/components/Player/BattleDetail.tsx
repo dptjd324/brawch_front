@@ -13,24 +13,40 @@ interface BattleDetailDto {
         players: {
             name: string;
             tag: string;
-            brawlerName: string;
+            brawler: {
+                id: number;
+                name: string;
+                power: number;
+                trophies: number;
+            };
         }[];
     }[];
     players?: {
         name: string;
         tag: string;
-        brawlerName: string;
+        brawler: {
+            id: number;
+            name: string;
+            power: number;
+            trophies: number;
+        };
     }[];
     starPlayer?: {
         name: string;
         tag: string;
-        brawlerName: string;
+        brawler: {
+            id: number;
+            name: string;
+            power: number;
+            trophies: number;
+        };
     };
     event?: {
         map: string;
         mode: string;
     };
 }
+
 const modeKoMap: { [key: string]: string } = {
     gemGrab: "젬 그랩",
     showdown: "솔로 쇼다운",
@@ -65,25 +81,9 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
     const hasParticipants = Array.isArray(battle.players) && battle.players.length > 0;
     const hasTeams = Array.isArray(battle.teams) && battle.teams.length > 0;
 
-    const isSoloShowdown = battle.gameMode === "soloShowdown" && Array.isArray((battle as any).players) && (battle as any).players.length === 10;
-    const isDuoShowdown = battle.gameMode === "duoshowdown" && battle.players?.length === 12;
-    const isTrioShowdown = battle.gameMode === "trioshowdown" && battle.players?.length === 12;
+    const isSoloShowdown = battle.gameMode === "soloShowdown" && Array.isArray(battle.players) && battle.players.length === 10;
+    const isDuoShowdown = battle.gameMode === "duoShowdown" && battle.teams?.length === 6;
     const isDuels = battle.gameMode === "duels" && battle.teams?.length === 2 && battle.teams[0].players.length === 3;
-    const players = (battle as any).players as Participant[] | undefined;
-
-    type Participant = {
-        name: string;
-        tag: string;
-        brawlerName: string;
-    };
-
-    const duoTeams: Participant[][] = isDuoShowdown
-        ? battle.players!.reduce((acc: Participant[][], curr, idx) => {
-            if (idx % 2 === 0) acc.push([curr]);
-            else acc[acc.length - 1].push(curr);
-            return acc;
-        }, [])
-        : [];
 
     return (
         <div className="p-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white space-y-10">
@@ -112,13 +112,15 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                     </div>
                 </div>
             </div>
+
+            {/* ⭐ 스타 플레이어 */}
             {battle.starPlayer && (
                 <div className="mt-6 flex flex-col items-center bg-yellow-400/90 text-gray-900 p-4 rounded-xl shadow-lg border-2 border-yellow-500 w-fit mx-auto">
                     <h2 className="text-xl font-extrabold mb-2">⭐ 스타 플레이어</h2>
                     <div className="flex items-center gap-4">
                         <Image
-                            src={getBrawlerImagePath(battle.starPlayer.brawlerName)}
-                            alt={battle.starPlayer.brawlerName}
+                            src={getBrawlerImagePath(battle.starPlayer.brawler.name)}
+                            alt={battle.starPlayer.brawler.name}
                             width={64}
                             height={64}
                             className="rounded-full border-4 border-yellow-600 bg-gray-700"
@@ -130,20 +132,63 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                             >
                                 {battle.starPlayer.name}
                             </Link>
-                            <span className="text-sm">{battle.starPlayer.brawlerName}</span>
+                            <span className="text-sm">{battle.starPlayer.brawler.name}</span>
                         </div>
                     </div>
                 </div>
             )}
-            {/* 솔로쇼다운 */}
-            {isSoloShowdown && players && (
+
+            {/* 팀 기반 모드 */}
+            {hasTeams && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {players.map((player, idx) => (
+                    {battle.teams!.map((team, idx) => (
+                        <div
+                            key={idx}
+                            className={`p-6 rounded-2xl shadow-xl border-2 ${team.winner
+                                ? "bg-gradient-to-br from-blue-700 via-blue-900 to-blue-800 border-blue-400"
+                                : "bg-gradient-to-br from-red-700 via-red-900 to-red-800 border-red-400"
+                                }`}
+                        >
+                            <h2 className={`text-xl font-bold mb-4 ${team.winner ? "text-blue-200" : "text-red-200"}`}>
+                                팀 {idx + 1} {team.winner ? '(승리)' : '(패배)'}
+                            </h2>
+                            <div className="space-y-4">
+                                {team.players.map((player) => (
+                                    <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
+                                        <Image
+                                            src={getBrawlerImagePath(player.brawler.name)}
+                                            alt={player.brawler.name}
+                                            width={48}
+                                            height={48}
+                                            className="rounded-full border border-white bg-gray-700"
+                                        />
+                                        <div>
+                                            <p className="font-semibold text-white">
+                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
+                                                    {player.name}
+                                                </Link>
+                                            </p>
+                                            <p className="text-sm text-gray-300">{player.brawler.name}</p>
+                                            <p className="text-sm text-gray-400">트로피: {player.brawler.trophies ?? "정보 없음"}</p>
+                                            <p className="text-sm text-gray-400">파워: {player.brawler.power ?? "정보 없음"}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* 솔로 쇼다운 */}
+            {isSoloShowdown && battle.players && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {battle.players.map((player, idx) => (
                         <div key={player.tag} className="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border border-teal-700">
                             <div className="flex items-center gap-4">
                                 <Image
-                                    src={getBrawlerImagePath(player.brawlerName)}
-                                    alt={player.brawlerName}
+                                    src={getBrawlerImagePath(player.brawler.name)}
+                                    alt={player.brawler.name}
                                     width={56}
                                     height={56}
                                     className="rounded-full border-2 border-teal-400 bg-gray-700"
@@ -155,124 +200,10 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                                         </Link>
                                         <span className="text-sm text-gray-400"> ({idx + 1}위)</span>
                                     </p>
-                                    <p className="text-sm text-gray-300">{player.brawlerName}</p>
+                                    <p className="text-sm text-gray-300">{player.brawler.name}</p>
+                                    <p className="text-sm text-gray-400">🏆 {player.brawler.trophies}</p>
+                                    <p className="text-sm text-gray-400">Power {player.brawler.power}</p>
                                 </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-
-            {isDuoShowdown && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {duoTeams.map((team, idx) => (
-                        <div key={idx} className="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border border-cyan-700">
-                            <h2 className="text-xl font-bold mb-4 text-cyan-300">듀오 팀 {idx + 1}</h2>
-                            <div className="space-y-4">
-                                {team.map((player) => (
-                                    <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
-                                        <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-cyan-400 bg-gray-700" />
-                                        <div>
-                                            <p className="font-semibold text-white">
-                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
-                                                    {player.name}
-                                                </Link>
-                                            </p>
-                                            <p className="text-sm text-gray-300">{player.brawlerName}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-             {isTrioShowdown && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {duoTeams.map((team, idx) => (
-                        <div key={idx} className="p-6 rounded-2xl shadow-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border border-cyan-700">
-                            <h2 className="text-xl font-bold mb-4 text-cyan-300">듀오 팀 {idx + 1}</h2>
-                            <div className="space-y-4">
-                                {team.map((player) => (
-                                    <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
-                                        <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-cyan-400 bg-gray-700" />
-                                        <div>
-                                            <p className="font-semibold text-white">
-                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
-                                                    {player.name}
-                                                </Link>
-                                            </p>
-                                            <p className="text-sm text-gray-300">{player.brawlerName}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {isDuels && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {battle.teams!.map((team, idx) => (
-                        <div
-                            key={idx}
-                            className={`p-6 rounded-2xl shadow-xl border-2 ${team.winner
-                                ? "bg-gradient-to-br from-blue-700 via-blue-900 to-blue-800 border-blue-400"
-                                : "bg-gradient-to-br from-red-700 via-red-900 to-red-800 border-red-400"
-                                }`}
-                        >
-                            <h2 className={`text-xl font-bold mb-4 ${team.winner ? "text-blue-200" : "text-red-200"}`}>
-                                팀 {idx + 1} {team.winner ? '(승리)' : '(패배)'}
-                            </h2>
-                            <div className="space-y-4">
-                                {team.players.map((player) => (
-                                    <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
-                                        <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-white bg-gray-700" />
-                                        <div>
-                                            <p className="font-semibold text-white">
-                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
-                                                    {player.name}
-                                                </Link>
-                                            </p>
-                                            <p className="text-sm text-gray-300">{player.brawlerName}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {!isSoloShowdown && !isDuoShowdown && !isDuels && hasTeams && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {battle.teams!.map((team, idx) => (
-                        <div
-                            key={idx}
-                            className={`p-6 rounded-2xl shadow-xl border-2 ${team.winner
-                                ? "bg-gradient-to-br from-blue-700 via-blue-900 to-blue-800 border-blue-400"
-                                : "bg-gradient-to-br from-red-700 via-red-900 to-red-800 border-red-400"
-                                }`}
-                        >
-                            <h2 className={`text-xl font-bold mb-4 ${team.winner ? "text-blue-200" : "text-red-200"}`}>
-                                팀 {idx + 1} {team.winner ? '(승리)' : '(패배)'}
-                            </h2>
-                            <div className="space-y-4">
-                                {team.players.map((player) => (
-                                    <div key={player.tag} className="flex items-center gap-4 bg-gray-900 rounded-lg p-3 shadow">
-                                        <Image src={getBrawlerImagePath(player.brawlerName)} alt={player.brawlerName} width={48} height={48} className="rounded-full border border-white bg-gray-700" />
-                                        <div>
-                                            <p className="font-semibold text-white">
-                                                <Link href={`/players/${player.tag.replace('#', '')}`} className="hover:underline cursor-pointer">
-                                                    {player.name}
-                                                </Link>
-                                            </p>
-                                            <p className="text-sm text-gray-300">{player.brawlerName}</p>
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     ))}

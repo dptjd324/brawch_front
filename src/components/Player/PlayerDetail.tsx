@@ -170,8 +170,14 @@ function getBrawlerImagePath(name: string) {
   const fileName = name.toLowerCase().replace(/[^a-z0-9]/g, "") + "_portrait.png";
   return `/brawler/${fileName}`;
 }
+type Props = {
+  player: {
+    battleLog?: any[];
+    [key: string]: any;
+  };
+};
 
-export default function PlayerDetail({ player }: { player: any }) {
+export default function PlayerDetail({ player }: Props)  {
   const [visibleCount, setVisibleCount] = useState(12);
   const battleLog = player.battleLog || [];
 
@@ -309,7 +315,7 @@ export default function PlayerDetail({ player }: { player: any }) {
               const iconPath = `/mode/${mode}_icon.png`;
 
               const myTag = (player.tag.startsWith("#") ? player.tag : `#${player.tag}`).toUpperCase();
-              let myBrawlerEn = "브롤러 없음";
+              let myBrawlerEn = battleInfo.myBrawlerName || "브롤러 없음";
               if (battleInfo.teams) {
                 outer: for (const team of battleInfo.teams) {
                   for (const p of team) {
