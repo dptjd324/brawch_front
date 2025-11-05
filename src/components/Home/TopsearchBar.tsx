@@ -2,6 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
+
 
 export function TopsearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,7 +33,7 @@ export function TopsearchBar() {
     >
       {/* 좌측 라임색 박스 */}
       <div className="bg-lime-400 h-full w-12 flex items-center justify-center font-bold text-white text-sm rounded-l-xl">
-        {/* 아이콘이나 텍스트 필요시 추가 */}
+        <FontAwesomeIcon icon={faStar} />
       </div>
       {/* 가운데 입력창 */}
       <input
@@ -37,7 +41,7 @@ export function TopsearchBar() {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="flex-1 h-full px-4 bg-gray-200 outline-none text-black font-semibold"
-        placeholder="플레이어 검색"
+        placeholder="태그를 입력하세요(# 제외)"
         aria-label="Search input"
       />
       {/* 우측 시안색 박스 */}
@@ -45,8 +49,10 @@ export function TopsearchBar() {
         type="submit"
         className="bg-cyan-300 h-full w-12 flex items-center justify-center font-bold text-white text-sm rounded-r-xl hover:bg-cyan-400 transition"
         aria-label="검색"
+        
       >
-        검색
+      <FontAwesomeIcon icon={faMagnifyingGlass} className="text-white text-lg" />
+    
       </button>
     </form>
   );

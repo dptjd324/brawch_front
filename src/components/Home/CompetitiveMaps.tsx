@@ -69,7 +69,7 @@ export default function CompetitiveMapsPage() {
         </button>
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide px-10"
+          className="flex gap-4 overflow-hidden px-10 w-[1200px]"
         >
           {filteredMaps.map((map) => (
             <Link

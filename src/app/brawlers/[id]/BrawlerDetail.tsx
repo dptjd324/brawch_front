@@ -7,6 +7,7 @@ import { getBrawlerImageUrlById } from "@/utils/brawlerData";
 interface Brawler {
   brawlerId: number;
   nameKr: string;
+  nameEn: string;
   imageUrl: string;
   roleKr: string;
   rarityKr: string;
@@ -37,10 +38,16 @@ interface StarPower {
   imageUrl: string;
   descriptionKr: string;
 }
+interface HyperCharge {
+  nameKr: string;
+  imageUrl: string;
+  descriptionKr: string;
+}
 
 export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
   const [gadgets, setGadgets] = useState<Gadget[]>([]);
   const [starPowers, setStarPowers] = useState<StarPower[]>([]);
+  const [hypercharge,setHyercharge] = useState<HyperCharge[]>([]);
 
   useEffect(() => {
     // 가젯 데이터 가져오기
@@ -60,7 +67,18 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
         setStarPowers(Array.isArray(data) ? data : []); // 배열인지 확인 후 설정
       })
       .catch((err) => console.error("Failed to fetch star powers:", err));
+    
+      
+    // 하이퍼차지 데이터 가져오기
+    fetch(`http://localhost:8081/api/brawlers/${brawler.brawlerId}/hypercharges`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Hypercharge API Response:", data); // 데이터 확인
+        setHyercharge(Array.isArray(data) ? data : []); // 배열인지 확인 후 설정
+      })
+      .catch((err) => console.error("Failed to fetch hypercharges:", err));
   }, [brawler.brawlerId]);
+
 
 
   return (
@@ -81,21 +99,68 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
             </div>
           </div>
 
-          {/* 가젯, 스타파워, 카운터 */}
+          {/* 가젯, 스타파워*/}
           <div className="flex gap-4">
-            <div className="flex flex-col items-center bg-gray-700 p-4 rounded-lg shadow">
-              <span className="font-bold text-lg">가젯</span>
-              <div className="w-8 h-8 bg-yellow-400 rounded-full"></div>
-              <p className="text-sm text-gray-300 mt-2">승률: 50%</p>
-              <p className="text-sm text-gray-300">픽률: 30%</p>
-              <p className="text-sm text-gray-300">표본수: 1000</p>
+            {/* 가젯 */}
+            <div className="flex flex-col items-start bg-gray-700 p-4 rounded-lg shadow gap-4">
+              <span className="font-bold text-lg mb-2 self-center">가젯</span>
+              {gadgets.length > 0 ? (
+                <div className="flex flex-row gap-4">
+                  {gadgets.map((gadget, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                      <img
+                        src={gadget.imageUrl}
+                        alt={gadget.nameKr}
+                        className="w-16 h-16 rounded-lg object-cover mb-2"
+                      />
+                      <span className="text-sm text-gray-300">{gadget.nameKr}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-sm text-gray-400">가젯 없음</span>
+              )}
             </div>
-            <div className="flex flex-col items-center bg-gray-700 p-4 rounded-lg shadow">
-              <span className="font-bold text-lg">스타파워</span>
-              <div className="w-8 h-8 bg-purple-400 rounded-full"></div>
-              <p className="text-sm text-gray-300 mt-2">승률: 50%</p>
-              <p className="text-sm text-gray-300">픽률: 30%</p>
-              <p className="text-sm text-gray-300">표본수: 1000</p>
+
+            {/* 스타파워 */}
+            <div className="flex flex-col items-start bg-gray-700 p-4 rounded-lg shadow gap-4">
+              <span className="font-bold text-lg mb-2 self-center">스타파워</span>
+              {starPowers.length > 0 ? (
+                <div className="flex flex-row gap-4">
+                  {starPowers.map((starPower, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                      <img
+                        src={starPower.imageUrl}
+                        alt={starPower.nameKr}
+                        className="w-16 h-16 rounded-lg object-cover mb-2"
+                      />
+                      <span className="text-sm text-gray-300">{starPower.nameKr}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-sm text-gray-400">스타파워 없음</span>
+              )}
+            </div>
+            {/* 하이퍼차지 */}
+            <div className="flex flex-col items-start bg-gray-700 p-4 rounded-lg shadow gap-4">
+              <span className="font-bold text-lg mb-2 self-center">하이퍼차지</span>
+              {hypercharge.length > 0 ? (
+                <div className="flex flex-row gap-4">
+                  {hypercharge.map((hypercharge, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                      <img
+                        src={`/hypercharge/${brawler.nameEn}_hypercharge.png`} 
+                        alt={hypercharge.nameKr}
+                        className="w-16 h-16 rounded-lg object-cover mb-2"
+                      />
+                      <span className="text-sm text-gray-300">{hypercharge.nameKr}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-sm text-gray-400">하이퍼차지 없음</span>
+              )}
             </div>
           </div>
         </div>
@@ -137,53 +202,6 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
             </div>
           </div>
         </div>
-
-        {/* 기본정보 */}
-        {/* <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
-          <h3 className="font-bold text-lg mb-4">기본정보</h3>
-          <table className="w-full text-sm text-left text-gray-300">
-            <thead>
-              <tr className="border-b border-gray-600">
-                <th className="py-2">능력치</th>
-                <th className="py-2">기본 능력치 (레벨 당 상승)</th>
-                <th className="py-2">최종 수치</th>
-                <th className="py-2">브롤러 순위</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="py-2">체력</td>
-                <td className="py-2">
-                  {brawler.baseHp} <span className="text-gray-400">(+{brawler.lvPerHp})</span>
-                </td>
-                <td className="py-2">{brawler.finalHp}</td>
-                <td className="py-2">1/91</td>
-              </tr>
-              <tr>
-                <td className="py-2">피해량</td>
-                <td className="py-2">
-                  {brawler.baseDamage} <span className="text-gray-400">(+{brawler.lvPerDamage})</span>
-                </td>
-                <td className="py-2">{brawler.finalDamage}</td>
-                <td className="py-2">1/91</td>
-              </tr>
-              <tr>
-                <td className="py-2">슈퍼 공격</td>
-                <td className="py-2">
-                  {brawler.baseSuperdamage} <span className="text-gray-400">(+{brawler.lvPerSuperdamage})</span>
-                </td>
-                <td className="py-2">{brawler.finalSuperdamage}</td>
-                <td className="py-2">1/91</td>
-              </tr>
-              <tr>
-                <td className="py-2">이동속도</td>
-                <td className="py-2">{brawler.movespdValue}</td>
-                <td className="py-2">{brawler.movespdValue}</td>
-                <td className="py-2">5/91</td>
-              </tr>
-            </tbody>
-          </table>
-        </div> */}
 
         {/* 스킬 상세설명 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
@@ -243,6 +261,22 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
                 <div>
                   <h4 className="font-bold text-gray-300">{starPower.nameKr} (Star Power)</h4>
                   <p className="text-gray-400 whitespace-pre-line">{starPower.descriptionKr || "설명이 없습니다."}</p>
+                </div>
+              </div>
+            ))}
+
+            {/*하이퍼차지*/}
+            {Array.isArray(hypercharge) && hypercharge.map((hypercharge, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <img
+                  src={`/hypercharge/${brawler.nameEn}_hypercharge.png`} 
+                  alt={`하이퍼차지 이미지 ${index + 1}`}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />   
+                <div>
+                  <h4 className="font-bold text-gray-300">{hypercharge.nameKr} (Hypercharge)</h4>
+                  <p className="text-gray-400 whitespace-pre-line">{hypercharge.descriptionKr || "설명이 없습니다."}</p>
+                  <p className="text-blue-400 whitespace-pre-line">스피드:20% 데미지:5% 방어막:5%</p>
                 </div>
               </div>
             ))}

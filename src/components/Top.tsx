@@ -34,6 +34,11 @@ export const Top = () => {
               모드
             </div>
           </Link>
+          <Link href="/ranking">
+            <div className="cursor-pointer text-xl font-bold text-gray-800 hover:text-white transition hover:scale-110">
+              랭킹
+            </div>
+          </Link>
         </div>
 
         {/* 오른쪽 검색바 */}

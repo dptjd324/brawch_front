@@ -1,24 +1,27 @@
-
 import { notFound } from "next/navigation";
 import PlayerDetail from "@/components/Player/PlayerDetail";
 
+interface Props {
+  params: { tag: string };
+}
+
 export default async function PlayerPage({ params }: { params: { tag: string } }) {
-  const encodedTag = encodeURIComponent(params.tag);
-
+  const tagParam = params.tag;
+  const tag = decodeURIComponent(tagParam);
+  const encodedTag = encodeURIComponent(tag);
   try {
-    const [playerRes, battleLogRes] = await Promise.all([
-      fetch(`http://localhost:8081/api/players/${encodedTag}`, { cache: "no-store" }),
-      fetch(`http://localhost:8081/api/players/${encodedTag}/battlelog`, { cache: "no-store" }),
-    ]);
+    const res = await fetch(`http://localhost:8081/api/players/detail?tag=${encodedTag}`, {
+      cache: "no-store",
+    });
 
-    if (!playerRes.ok || !battleLogRes.ok) return notFound();
+    if (!res.ok) return notFound();
 
-    const player = await playerRes.json();
-    const battleLog = await battleLogRes.json();
+    const data = await res.json();
 
-    return <PlayerDetail player={{ ...player, battleLog: battleLog?.items || [] }} />;
+    return <PlayerDetail player={{ ...data.player, battleLog: data.battleLogs }} />;
   } catch (err) {
     console.error("PlayerPage fetch error:", err);
     return notFound();
   }
 }
+
