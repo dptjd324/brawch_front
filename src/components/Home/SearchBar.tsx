@@ -101,7 +101,7 @@ export function SearchBar() {
               onClick={() => handleRecentClick(player.tag)}
               className="px-4 py-2 text-white hover:bg-gray-600 cursor-pointer"
             >
-              #{player.tag} - {player.name} ({player.trophies}🏆)
+              #{player.tag} - {player.name} 
               <div className="text-xs text-gray-400">
               </div>
             </li>

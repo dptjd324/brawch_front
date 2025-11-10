@@ -124,7 +124,7 @@ export default function ModesPage() {
 
   const modeKeys = useMemo(() => Object.keys(modeMaps), [modeMaps]);
 
-  // ✅ 카테고리별 필터링된 모드 리스트
+
   const filteredModeKeys = useMemo(() => {
     if (selectedCategory === 'competitive') {
       return modeKeys.filter((k) => competitiveModes.includes(k));
@@ -214,35 +214,44 @@ export default function ModesPage() {
         </div>
       </div>
 
-      {/* ✅ 카테고리 구분 버튼 */}
+      {/*  카테고리 구분 버튼 */}
       <div className="flex justify-center mb-8 gap-6">
+        {/* 경쟁전 아이콘 버튼 */}
         <button
-          className={`px-6 py-3 rounded-2xl font-semibold shadow-lg transition ${
-            selectedCategory === 'competitive'
-              ? 'bg-blue-500 text-white scale-110'
-              : 'bg-gray-600 text-gray-200 hover:scale-105'
-          }`}
+          className={`p-4 rounded-2xl shadow-lg transition border-4 ${selectedCategory === 'competitive'
+              ? 'border-blue-500 bg-blue-500/20 scale-110'
+              : 'border-transparent bg-gray-700 hover:scale-105'
+            }`}
           onClick={() => setSelectedCategory('competitive')}
+          title="경쟁전"
         >
-          경쟁전
+          <img
+            src="/icon/soloranked_icon.png"
+            alt="경쟁전 아이콘"
+            className="w-14 h-14 object-contain"
+          />
         </button>
+
+        {/* 트로피전 아이콘 버튼 */}
         <button
-          className={`px-6 py-3 rounded-2xl font-semibold shadow-lg transition ${
-            selectedCategory === 'trophy'
-              ? 'bg-amber-500 text-white scale-110'
-              : 'bg-gray-600 text-gray-200 hover:scale-105'
-          }`}
+          className={`p-4 rounded-2xl shadow-lg transition border-4 ${selectedCategory === 'trophy'
+              ? 'border-amber-500 bg-amber-500/20 scale-110'
+              : 'border-transparent bg-gray-700 hover:scale-105'
+            }`}
           onClick={() => setSelectedCategory('trophy')}
+          title="트로피전"
         >
-          트로피전
+          <img
+            src="/icon/icon_trophy2.png"
+            alt="트로피전 아이콘"
+            className="w-14 h-14 object-contain"
+          />
         </button>
       </div>
 
       {/* 모드별 맵 */}
       <div className="items-center w-full max-w-[1400px] mx-auto">
-        <h2 className="text-lg font-bold bg-[#2dd4bf]-300 inline-block px-4 py-2 rounded mb-4">
-          {selectedCategory === 'competitive' ? '경쟁전 모드' : '트로피전 모드'}
-        </h2>
+
         <div className="bg-orange-200 p-4 rounded-lg flex flex-wrap gap-4 mb-6">
           {filteredModeKeys.length === 0 && <span className="text-gray-600">모드 로딩 중...</span>}
           {filteredModeKeys.map((k) => {
@@ -251,11 +260,10 @@ export default function ModesPage() {
             return (
               <button
                 key={k}
-                className={`w-24 h-24 bg-green-300 rounded-xl flex items-center justify-center overflow-hidden border-2 transition ${
-                  isSelected
+                className={`w-24 h-24 bg-green-300 rounded-xl flex items-center justify-center overflow-hidden border-2 transition ${isSelected
                     ? 'border-blue-500 scale-110'
                     : 'border-transparent hover:scale-105'
-                }`}
+                  }`}
                 title={label}
                 onClick={() => setSelectedKey(k)}
               >

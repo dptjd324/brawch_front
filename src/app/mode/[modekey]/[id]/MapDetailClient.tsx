@@ -16,7 +16,6 @@ export default function MapDetailClient({
   const [mapItem, setMapItem] = useState<MapRow | null>(null);
   const [loading, setLoading] = useState(true);
 
-
   const exts = useMemo(() => ['png', 'webp', 'jpg', 'jpeg', 'PNG'], []);
   const [idx, setIdx] = useState(0);
   const imageSrc = useMemo(() => `/map/${modeKey}/${id}.${exts[idx]}`, [modeKey, id, exts, idx]);
@@ -72,14 +71,15 @@ export default function MapDetailClient({
     })();
   }, [modeKey, id]);
 
-   return (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a2233] via-[#232b36] to-[#182133] p-16">
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1400px] mx-auto">
         <div className="flex flex-col gap-16">
-          {/* 상단 맵/모드 박스 */}
-          <div className="flex flex-row gap-16 justify-center items-start">
+          {/* 상단 맵/모드 + 티어리스트 가로 배치 */}
+          <div className="flex flex-row gap-12 justify-center items-start">
+            
             {/* 맵 박스 */}
-            <div className="bg-[#232b36] rounded-3xl shadow-2xl p-0 w-[540px] flex flex-col items-center border border-[#2dd4bf]/30">
+            <div className="bg-[#232b36] rounded-3xl shadow-2xl w-[600px] flex flex-col items-center border border-[#2dd4bf]/30">
               {/* 모드 정보 + 아이콘 */}
               <div className="flex items-center w-full px-12 pt-10 pb-5 gap-5">
                 <div className="bg-[#2dd4bf] rounded-2xl p-4 flex items-center justify-center shadow">
@@ -94,10 +94,12 @@ export default function MapDetailClient({
                   {modeKey}
                 </span>
               </div>
+
               {/* 맵 이름 */}
               <div className="bg-gray-700 rounded-t-3xl w-full px-12 py-6 text-2xl font-bold text-[#2dd4bf] flex items-center shadow">
                 <span className="ml-5 text-white">{mapItem?.name ?? ''}</span>
               </div>
+
               {/* 맵 이미지 */}
               <div className="bg-[#4fd1ff] w-full flex-1 flex items-center justify-center rounded-b-3xl p-8 min-h-[600px]">
                 <img
@@ -108,10 +110,12 @@ export default function MapDetailClient({
                 />
               </div>
             </div>
-            {/* 티어 테이블 */}
-            <div className="bg-[#232b36] rounded-3xl shadow-2xl flex-1 p-0 border border-[#2dd4bf]/20 min-w-[700px]">
+
+            {/* 티어리스트 오른쪽 배치 */}
+            <div className="bg-[#232b36] rounded-3xl shadow-2xl flex-1 p-0 border border-[#2dd4bf]/20 min-w-[900px]">
               <MapTierListClient modeKey={modeKey} id={id} />
             </div>
+
           </div>
         </div>
       </div>

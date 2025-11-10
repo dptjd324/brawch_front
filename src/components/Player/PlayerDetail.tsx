@@ -432,6 +432,10 @@ export default function PlayerDetail({ player }: Props)  {
               >
                 더 보기
               </button>
+                  {/* 작은 글씨 추가 */}
+    <p className="text-base text-gray-400 mt-2">
+      최근 플레이한 전적 200개까지 표시됩니다.
+    </p>
             </div>
           )}
         </div>
