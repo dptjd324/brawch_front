@@ -14,6 +14,18 @@ interface BrawlerData {
   imageUrl: string;
 }
 
+interface BrawlerTier {
+  brawlerId: number;
+  brawlerName: string;
+  winRate: number;
+  pickRate: number;
+  score: number;
+  tier: string;
+  rank: number;
+  picks: number;
+  imageUrl?: string;
+}
+
 function getChosung(str: string | undefined) {
   const CHOSUNG = [
     "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ",
@@ -28,14 +40,14 @@ function getChosung(str: string | undefined) {
   return str[0];
 }
 
-const tiers = ["S+", "S", "A", "B", "C"];
-
 export default function BrawlersPage() {
   const [brawlers, setBrawlers] = useState<BrawlerData[]>([]);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [tierList, setTierList] = useState<{ [key: string]: BrawlerData[] }>({});
-
+  const [tierList, setTierList] = useState<BrawlerTier[]>([]);
+  const [patchVersions, setPatchVersions] = useState<string[]>([]);
+  const [selectedVersion, setSelectedVersion] = useState<string>("");
+  const [battleType, setBattleType] = useState<"normal" | "ranked">("normal");
   const roleImages: { [key: string]: string } = {
     "탱커": "/role/icon_class_tank.png",
     "어쌔신": "/role/icon_class_assassin.png",
@@ -48,6 +60,7 @@ export default function BrawlersPage() {
 
   const roles = Object.keys(roleImages);
 
+  // 전체 브롤러 목록
   useEffect(() => {
     fetch("http://localhost:8081/api/brawlers")
       .then((res) => res.json())
@@ -62,34 +75,42 @@ export default function BrawlersPage() {
         setBrawlers(sorted);
       });
   }, []);
+
+  // 패치버전 목록 가져오기
   useEffect(() => {
-    fetch("http://localhost:8081/api/brawlers")
-      .then((res) => res.json())
-      .then((data) => {
-        distributeBrawlersToTiers(data);
-      })
-      .catch((err) => console.error("Failed to fetch brawlers:", err));
+    fetch("http://localhost:8081/api/brawlers/patchVersions")
+      .then(res => res.json())
+      .then(json => {
+        setPatchVersions(json);
+        if (json.length > 0) setSelectedVersion(json[0]);
+      });
   }, []);
 
+  // 티어리스트 데이터 가져오기
+  useEffect(() => {
+    if (!selectedVersion) return;
+
+    const fetchTiers = async () => {
+      try {
+        console.log(`🔍 Fetching tiers: ${selectedVersion}, ${battleType}`);
+        const res = await fetch(
+          `http://localhost:8081/api/brawlers/tiers?patchVersion=${selectedVersion}&battleType=${battleType}`,
+          { cache: "no-store" }
+        );
+        if (!res.ok) throw new Error("Failed to fetch tiers");
+        const data = await res.json();
+        console.log(" Received tiers:", data);
+        setTierList(data);
+      } catch (err) {
+        console.error(" Fetch failed:", err);
+        setTierList([]);
+      }
+    };
+
+    fetchTiers();
+  }, [selectedVersion, battleType]);
   const handleRoleClick = (role: string) => {
     setSelectedRole(prev => (prev === role ? null : role));
-  };
-
-  const distributeBrawlersToTiers = (brawlers: BrawlerData[]) => {
-    const sortedBrawlers = [...brawlers].sort((a, b) => a.nameKr.localeCompare(b.nameKr, "ko-KR"));
-    const newTierList: { [key: string]: BrawlerData[] } = {};
-
-    tiers.forEach((tier) => {
-      newTierList[tier] = [];
-    });
-
-    sortedBrawlers.forEach((brawler, index) => {
-      const tierIndex = index % tiers.length;
-      const tier = tiers[tierIndex];
-      newTierList[tier].push(brawler);
-    });
-
-    setTierList(newTierList);
   };
 
   const filteredBrawlers = brawlers.filter(b => {
@@ -98,16 +119,24 @@ export default function BrawlersPage() {
     return matchesRole && matchesSearch;
   });
 
+  const TIER_COLORS: Record<string, string> = {
+    "S+": "bg-gradient-to-r from-yellow-300 to-yellow-500 text-black font-extrabold border-2 border-yellow-300",
+    "S": "bg-green-400 text-white font-bold",
+    "A": "bg-blue-400 text-white font-bold",
+    "B": "bg-gray-300 text-gray-700 font-semibold",
+    "C": "bg-gray-600 text-white opacity-80",
+    "D": "bg-orange-600 text-white",
+    "F": "bg-gray-700 text-white",
+  };
+
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white p-10">
       <div className="max-w-[1400px] mx-auto flex gap-12">
         {/* 좌측 브롤러 영역 */}
         <div className="flex-[3] bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col gap-6">
-          {/* 상단 바 */}
           <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-sm text-gray-300">VER.</span>
-            <span className="bg-teal-300 w-8 h-8 flex items-center justify-center font-bold rounded-full text-white shadow">Q</span>
           </div>
+
           {/* 검색창 */}
           <div className="flex items-center gap-2 bg-gray-700 rounded-xl px-3 py-2 shadow-inner">
             <input
@@ -122,6 +151,7 @@ export default function BrawlersPage() {
               className="text-teal-400 hover:text-teal-300 transition"
             />
           </div>
+
           {/* 역할 버튼 */}
           <div className="flex gap-4 justify-center flex-wrap">
             <button
@@ -147,6 +177,7 @@ export default function BrawlersPage() {
               </button>
             ))}
           </div>
+
           {/* 브롤러 리스트 */}
           <div className="grid grid-cols-5 gap-4 mt-2">
             {filteredBrawlers.length === 0 ? (
@@ -169,78 +200,112 @@ export default function BrawlersPage() {
           </div>
         </div>
 
-        {/* 우측 티어표 영역 */}
-        <div className="flex-[7] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen w-full text-white">
-          <div className="flex flex-col gap-0">
-            {/* 헤더 */}
-            <div className="grid grid-cols-7 items-center px-6 py-3 font-bold text-base text-gray-300 bg-gray-800 rounded-xl shadow mb-0">
-              <span className="text-center">순위</span>
-              <span className="text-center">티어</span>
-              <span className="text-center">브롤러</span>
-              <span className="text-center">승률</span>
-              <span className="text-center">픽률</span>
+
+        {/* 우측 실제 티어표 영역 */}
+        <div className="flex-[7] bg-gray-900 rounded-2xl shadow-lg p-6 flex flex-col gap-4">
+          {/* 🟢 전투 유형 토글 버튼 (아이콘 버전) */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex gap-6">
+              {/* 트로피전 버튼 */}
+              <button
+                onClick={() => setBattleType("normal")}
+                className={`p-4 rounded-2xl shadow-lg transition border-4 ${battleType === "normal"
+                    ? "border-amber-400 bg-amber-400/20 scale-110"
+                    : "border-transparent bg-gray-700 hover:scale-105"
+                  }`}
+                title="트로피전"
+              >
+                <img
+                  src="/icon/icon_trophy2.png"
+                  alt="트로피전 아이콘"
+                  className="w-12 h-12 object-contain"
+                />
+              </button>
+
+              {/* 경쟁전 버튼 */}
+              <button
+                onClick={() => setBattleType("ranked")}
+                className={`p-4 rounded-2xl shadow-lg transition border-4 ${battleType === "ranked"
+                    ? "border-purple-500 bg-purple-500/20 scale-110"
+                    : "border-transparent bg-gray-700 hover:scale-105"
+                  }`}
+                title="경쟁전"
+              >
+                <img
+                  src="/icon/soloranked_icon.png"
+                  alt="경쟁전 아이콘"
+                  className="w-12 h-12 object-contain"
+                />
+              </button>
             </div>
-            {/* 브롤러 리스트 */}
-            <div className="flex flex-col overflow-y-auto flex-grow w-full h-full">
-              {Object.values(tierList).flat().map((brawler, globalIndex) => {
-                const tierColors: { [key: string]: string } = {
-                  "S+": "bg-yellow-400 text-white shadow-lg border-4 border-yellow-200 scale-110",
-                  "S": "bg-green-300 text-white shadow-md border-4 border-green-100",
-                  "A": "bg-blue-300 text-white shadow border-4 border-blue-100",
-                  "B": "bg-gray-300 text-gray-600 border-4 border-gray-200",
-                  "C": "bg-gray-500 text-gray-200 border-4 border-gray-400 opacity-70"
-                };
 
-                const tierLabelColors: { [key: string]: string } = {
-                  "S+": "bg-gradient-to-br from-yellow-200 to-yellow-400 text-yellow-900 font-extrabold drop-shadow",
-                  "S": "bg-gradient-to-br from-lime-200 to-green-300 text-green-900 font-bold",
-                  "A": "bg-gradient-to-br from-blue-100 to-blue-300 text-blue-900 font-bold",
-                  "B": "bg-gradient-to-br from-gray-200 to-gray-400 text-gray-700 font-semibold",
-                  "C": "bg-gradient-to-br from-gray-400 to-gray-600 text-gray-500 font-semibold"
-                };
+            <select
+              className="bg-gray-700 text-white px-3 py-1 rounded"
+              value={selectedVersion}
+              onChange={(e) => setSelectedVersion(e.target.value)}
+            >
+              {patchVersions.map((v) => (
+                <option key={v} value={v}>{v}</option>
+              ))}
+            </select>
+          </div>
 
-                const tier = Object.entries(tierList).find(([_, brawlers]) =>
-                  brawlers.includes(brawler)
-                )?.[0] || "Unknown";
+          {/* 티어리스트 테이블 */}
+          <div className="bg-gray-800 rounded-xl overflow-y-auto max-h-[800px] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+            <table className="min-w-full text-white text-lg">
+              <thead className="bg-yellow-500 text-black text-lg sticky top-0 z-10">
+                <tr>
+                  <th className="p-3 whitespace-nowrap">순위</th>
+                  <th className="p-3 whitespace-nowrap">티어</th>
+                  <th className="p-3 whitespace-nowrap">브롤러</th>
+                  <th className="p-3 whitespace-nowrap">승률</th>
+                  <th className="p-3 whitespace-nowrap">픽률</th>
+                  <th className="p-3 whitespace-nowrap">Brawch 점수</th>
+                  <th className="p-3 whitespace-nowrap">표본수</th>
+                  <th className="p-3 whitespace-nowrap">같이하면 좋은 브롤러</th>
+                </tr>
+              </thead>
 
-                // 승률과 픽률을 티어에 따라 설정
-                const winRate = tier === "S+" ? (Math.random() * 5 + 60).toFixed(1) + "%" :
-                  tier === "S" ? (Math.random() * 5 + 55).toFixed(1) + "%" :
-                    tier === "A" ? (Math.random() * 5 + 50).toFixed(1) + "%" :
-                      tier === "B" ? (Math.random() * 5 + 45).toFixed(1) + "%" :
-                        (Math.random() * 5 + 40).toFixed(1) + "%";
-
-                const pickRate = (Math.random() * 27 + 1).toFixed(1) + "%";
-
-                return (
-                  <div
-                    key={brawler.brawlerId}
-                    className="grid grid-cols-7 items-center px-6 py-4 rounded-2xl bg-gray-800 shadow-md gap-2 hover:scale-[1.01] transition-transform duration-150"
-                  >
-                    <span className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${tierColors[tier]}`}>
-                      {globalIndex + 1}
-                    </span>
-                    <span className={`mx-auto w-16 h-10 flex items-center justify-center rounded-xl shadow-md text-lg ${tierLabelColors[tier]}`}>
-                      {tier}
-                    </span>
-                    {/* 브롤러 사진과 이름 */}
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={brawler.imageUrl || "/default-profile.png"}
-                        alt={brawler.nameKr || "브롤러 없음"}
-                        className="w-10 h-10 rounded-lg object-cover"
-                      />
-                      <span className="text-sm font-bold text-gray-300">
-                        {brawler.nameKr || "브롤러 없음"}
-                      </span>
-                    </div>
-                    {/* 조합 */}
-                    <span className="text-center font-bold text-gray-300">{winRate}</span>
-                    <span className="text-center font-bold text-gray-300">{pickRate}</span>
-                  </div>
-                );
-              })}
-            </div>
+              <tbody>
+                {tierList.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-6 text-gray-400">
+                      데이터가 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  tierList.map((b) => (
+                    <tr key={b.brawlerId} className="text-center border-b border-gray-700 h-16 hover:bg-gray-700/40 transition">
+                      <td className="p-3 font-bold text-yellow-400">{b.rank}</td>
+                      <td className="p-3">
+                        <span className={`px-5 py-2 rounded-lg font-bold text-lg ${TIER_COLORS[b.tier] ?? 'bg-gray-500 text-white'}`}>
+                          {b.tier}
+                        </span>
+                      </td>
+                      <td className="p-3 flex items-center gap-3 justify-center min-w-[150px]">
+                        <Link href={`/brawlers/${b.brawlerId}`}>
+                          <img
+                            src={b.imageUrl || getBrawlerImageUrlById(b.brawlerId)}
+                            alt={b.brawlerName}
+                            className="w-10 h-10 object-contain rounded cursor-pointer hover:scale-110 transition"
+                          />
+                        </Link>
+                        <Link href={`/brawlers/${b.brawlerId}`}>
+                          <span className="font-bold text-lg cursor-pointer hover:underline break-keep">
+                            {b.brawlerName}
+                          </span>
+                        </Link>
+                      </td>
+                      <td className="p-3">{b.winRate.toFixed(1)}%</td>
+                      <td className="p-3">{b.pickRate.toFixed(1)}%</td>
+                      <td className="p-3">{b.score.toFixed(1)}점</td>
+                      <td className="p-3">{b.picks.toLocaleString()}</td>
+                      <td className="p-3 text-gray-500">-</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
