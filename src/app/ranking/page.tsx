@@ -9,6 +9,7 @@ interface PlayerRanking {
   clubName: string;
   trophies: number;
   iconId: number;
+  tag: string;
 }
 
 type CountryFilter = 'KR' | 'GLOBAL';

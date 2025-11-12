@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { getBrawlerImageUrl } from "@/utils/brawlerData";
@@ -180,10 +180,27 @@ type Props = {
 export default function PlayerDetail({ player }: Props)  {
   const [visibleCount, setVisibleCount] = useState(12);
   const battleLog = player.battleLog || [];
+  const [progress, setProgress] = useState<any>(null);
+
+   useEffect(() => {
+    async function fetchProgress() {
+      try {
+        const res = await fetch(`/api/players/${encodeURIComponent(player.tag)}/progress`);
+        if (res.ok) {
+          const data = await res.json();
+          setProgress(data);
+        }
+      } catch (err) {
+        console.error("Progress fetch error:", err);
+      }
+    }
+    if (player.tag) fetchProgress();
+  }, [player.tag]);
 
   const loadMore = () => {
     setVisibleCount(prev => Math.min(prev + 12, battleLog.length));
   };
+  
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white p-8">
@@ -269,6 +286,61 @@ export default function PlayerDetail({ player }: Props)  {
                 <p className="text-lg text-gray-300">듀오 승리</p>
                 <p className="text-2xl font-bold text-white">{player.duoVictories ?? 0}</p>
               </div>
+            </div>
+          </div>
+        </div>
+        {/*  계정 만렙 진행도 (Progress Summary) */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-12">
+          <h3 className="text-3xl font-bold mb-6 text-teal-400 text-center">계정 진행도</h3>
+          <div className="relative w-full bg-gray-700 h-6 rounded-full overflow-hidden mb-8">
+            <div
+              className="absolute top-0 left-0 h-full bg-teal-500 transition-all duration-500"
+              style={{ width: `${progress?.totalProgressPercent ?? 0}%` }}
+            />
+            <span className="absolute inset-0 flex items-center justify-center text-white text-sm font-semibold">
+              {progress ? `${progress.totalProgressPercent.toFixed(1)}% 완료` : "불러오는 중..."}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <p className="text-gray-400 mb-2">브롤러 보유</p>
+              <p className="text-2xl font-bold text-white">
+                {progress ? `${progress.ownedBrawlers}/${progress.totalBrawlers}` : "-"}
+              </p>
+              <p className="text-teal-400 font-semibold">
+                {progress ? `${progress.brawlerPercent.toFixed(1)}%` : ""}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400 mb-2">가젯</p>
+              <p className="text-2xl font-bold text-white">
+                {progress ? `${(192 * progress.gadgetPercent / 100).toFixed(0)}/192` : "-"}
+              </p>
+              <p className="text-teal-400 font-semibold">
+                {progress ? `${progress.gadgetPercent.toFixed(1)}%` : ""}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400 mb-2">스타파워</p>
+              <p className="text-2xl font-bold text-white">
+                {progress ? `${(192 * progress.starPowerPercent / 100).toFixed(0)}/192` : "-"}
+              </p>
+              <p className="text-teal-400 font-semibold">
+                {progress ? `${progress.starPowerPercent.toFixed(1)}%` : ""}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400 mb-2">기어</p>
+              <p className="text-2xl font-bold text-white">
+                {progress ? `${(611 * progress.gearPercent / 100).toFixed(0)}/611` : "-"}
+              </p>
+              <p className="text-teal-400 font-semibold">
+                {progress ? `${progress.gearPercent.toFixed(1)}%` : ""}
+              </p>
             </div>
           </div>
         </div>

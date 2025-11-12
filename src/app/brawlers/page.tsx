@@ -14,16 +14,23 @@ interface BrawlerData {
   imageUrl: string;
 }
 
+type SynergyInfo = {
+  teammateId?: number;
+  teammateName: string;
+  teammateImageUrl?: string;
+  pairWinrate?: number;
+};
+
 interface BrawlerTier {
   brawlerId: number;
   brawlerName: string;
   winRate: number;
   pickRate: number;
   score: number;
-  tier: string;
   rank: number;
   picks: number;
   imageUrl?: string;
+  topSynergies?: SynergyInfo[];
 }
 
 function getChosung(str: string | undefined) {
@@ -40,6 +47,18 @@ function getChosung(str: string | undefined) {
   return str[0];
 }
 
+// ✅ 티어 계산 함수 (프론트 전용)
+function getTier(score: number, picks: number): string {
+  if (picks < 100) return "F";
+  if (score >= 3.5) return "S+";
+  if (score >= 3.0) return "S";
+  if (score >= 2.5) return "A";
+  if (score >= 2.0) return "B";
+  if (score >= 1.7) return "C";
+  if (score > 1.2) return "D";
+  return "F";
+}
+
 export default function BrawlersPage() {
   const [brawlers, setBrawlers] = useState<BrawlerData[]>([]);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
@@ -48,7 +67,8 @@ export default function BrawlersPage() {
   const [patchVersions, setPatchVersions] = useState<string[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>("");
   const [battleType, setBattleType] = useState<"normal" | "ranked">("normal");
-  const roleImages: { [key: string]: string } = {
+
+  const roleImages: Record<string, string> = {
     "탱커": "/role/icon_class_tank.png",
     "어쌔신": "/role/icon_class_assassin.png",
     "서포터": "/role/icon_class_support.png",
@@ -60,11 +80,11 @@ export default function BrawlersPage() {
 
   const roles = Object.keys(roleImages);
 
-  // 전체 브롤러 목록
+  // ✅ 브롤러 목록 로드
   useEffect(() => {
     fetch("http://localhost:8081/api/brawlers")
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         const sorted = [...data]
           .filter(b => b.nameKr)
           .sort((a, b) => {
@@ -76,7 +96,7 @@ export default function BrawlersPage() {
       });
   }, []);
 
-  // 패치버전 목록 가져오기
+  // ✅ 패치버전 목록
   useEffect(() => {
     fetch("http://localhost:8081/api/brawlers/patchVersions")
       .then(res => res.json())
@@ -86,29 +106,66 @@ export default function BrawlersPage() {
       });
   }, []);
 
-  // 티어리스트 데이터 가져오기
+  // ✅ 티어리스트 + 시너지 병합 + 프론트 정렬
   useEffect(() => {
     if (!selectedVersion) return;
 
-    const fetchTiers = async () => {
+    const fetchTierAndSynergy = async () => {
       try {
-        console.log(`🔍 Fetching tiers: ${selectedVersion}, ${battleType}`);
-        const res = await fetch(
+        console.log(`🔍 Fetching tiers + synergy: ${selectedVersion}, ${battleType}`);
+
+        // 티어리스트
+        const tierRes = await fetch(
           `http://localhost:8081/api/brawlers/tiers?patchVersion=${selectedVersion}&battleType=${battleType}`,
           { cache: "no-store" }
         );
-        if (!res.ok) throw new Error("Failed to fetch tiers");
-        const data = await res.json();
-        console.log(" Received tiers:", data);
-        setTierList(data);
+        if (!tierRes.ok) throw new Error("티어 데이터 요청 실패");
+        const tierData: BrawlerTier[] = await tierRes.json();
+
+        // 시너지
+        const synergyRes = await fetch(
+          `http://localhost:8081/api/synergy?patchVersion=${selectedVersion}&battleType=${battleType}`,
+          { cache: "no-store" }
+        );
+        if (!synergyRes.ok) throw new Error("시너지 데이터 요청 실패");
+        const synergyData = await synergyRes.json();
+
+        // 병합
+        const merged = tierData.map(tier => {
+          const synergy = synergyData.find(
+            (s: any) =>
+              s.brawlerId === tier.brawlerId ||
+              s.brawlerA === tier.brawlerId ||
+              s.brawlerAName === tier.brawlerName
+          );
+          return {
+            ...tier,
+            topSynergies: synergy?.topSynergies || [],
+          };
+        });
+
+        // ✅ 정렬: 티어 순 → 점수 순
+        const tierOrder = ["S+", "S", "A", "B", "C", "D", "F"];
+        const sorted = [...merged].sort((a, b) => {
+          const tierA = getTier(a.score, a.picks);
+          const tierB = getTier(b.score, b.picks);
+          const idxA = tierOrder.indexOf(tierA);
+          const idxB = tierOrder.indexOf(tierB);
+          if (idxA !== idxB) return idxA - idxB;
+          return b.score - a.score;
+        });
+
+        setTierList(sorted);
+        console.log("✅ 병합 및 정렬 완료:", sorted);
       } catch (err) {
-        console.error(" Fetch failed:", err);
+        console.error("❌ Fetch 실패:", err);
         setTierList([]);
       }
     };
 
-    fetchTiers();
+    fetchTierAndSynergy();
   }, [selectedVersion, battleType]);
+
   const handleRoleClick = (role: string) => {
     setSelectedRole(prev => (prev === role ? null : role));
   };
@@ -132,11 +189,8 @@ export default function BrawlersPage() {
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white p-10">
       <div className="max-w-[1400px] mx-auto flex gap-12">
-        {/* 좌측 브롤러 영역 */}
+        {/* 좌측 브롤러 목록 */}
         <div className="flex-[3] bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col gap-6">
-          <div className="flex items-center justify-between mb-2">
-          </div>
-
           {/* 검색창 */}
           <div className="flex items-center gap-2 bg-gray-700 rounded-xl px-3 py-2 shadow-inner">
             <input
@@ -157,7 +211,7 @@ export default function BrawlersPage() {
             <button
               onClick={() => setSelectedRole(null)}
               className={`w-28 h-12 flex items-center justify-center rounded-lg font-semibold shadow transition-all
-            ${selectedRole === null ? "bg-teal-400 text-white" : "bg-gray-700 text-gray-300 border border-teal-500"}`}
+              ${selectedRole === null ? "bg-teal-400 text-white" : "bg-gray-700 text-gray-300 border border-teal-500"}`}
             >
               전체
             </button>
@@ -166,19 +220,15 @@ export default function BrawlersPage() {
                 key={i}
                 onClick={() => handleRoleClick(role)}
                 className={`w-28 h-12 flex items-center justify-center gap-2 rounded-lg font-semibold shadow transition-all
-              ${selectedRole === role ? "bg-pink-400 text-white" : "bg-gray-700 text-gray-300 border border-pink-500"}`}
+                ${selectedRole === role ? "bg-pink-400 text-white" : "bg-gray-700 text-gray-300 border border-pink-500"}`}
               >
-                <img
-                  src={roleImages[role]}
-                  alt={role}
-                  className="w-8 h-8 object-contain"
-                />
+                <img src={roleImages[role]} alt={role} className="w-8 h-8 object-contain" />
                 <span>{role}</span>
               </button>
             ))}
           </div>
 
-          {/* 브롤러 리스트 */}
+          {/* 브롤러 목록 */}
           <div className="grid grid-cols-5 gap-4 mt-2">
             {filteredBrawlers.length === 0 ? (
               <span className="col-span-5 text-center text-red-400 font-semibold">브롤러가 없습니다.</span>
@@ -200,42 +250,35 @@ export default function BrawlersPage() {
           </div>
         </div>
 
-
-        {/* 우측 실제 티어표 영역 */}
+        {/* 우측 티어리스트 테이블 */}
         <div className="flex-[7] bg-gray-900 rounded-2xl shadow-lg p-6 flex flex-col gap-4">
-          {/* 🟢 전투 유형 토글 버튼 (아이콘 버전) */}
+          {/* 전투 유형 선택 + 패치버전 */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex gap-6">
-              {/* 트로피전 버튼 */}
+              {/* 트로피전 */}
               <button
                 onClick={() => setBattleType("normal")}
-                className={`p-4 rounded-2xl shadow-lg transition border-4 ${battleType === "normal"
+                className={`p-4 rounded-2xl shadow-lg transition border-4 ${
+                  battleType === "normal"
                     ? "border-amber-400 bg-amber-400/20 scale-110"
                     : "border-transparent bg-gray-700 hover:scale-105"
-                  }`}
+                }`}
                 title="트로피전"
               >
-                <img
-                  src="/icon/icon_trophy2.png"
-                  alt="트로피전 아이콘"
-                  className="w-12 h-12 object-contain"
-                />
+                <img src="/icon/icon_trophy2.png" alt="트로피전" className="w-12 h-12 object-contain" />
               </button>
 
-              {/* 경쟁전 버튼 */}
+              {/* 경쟁전 */}
               <button
                 onClick={() => setBattleType("ranked")}
-                className={`p-4 rounded-2xl shadow-lg transition border-4 ${battleType === "ranked"
+                className={`p-4 rounded-2xl shadow-lg transition border-4 ${
+                  battleType === "ranked"
                     ? "border-purple-500 bg-purple-500/20 scale-110"
                     : "border-transparent bg-gray-700 hover:scale-105"
-                  }`}
+                }`}
                 title="경쟁전"
               >
-                <img
-                  src="/icon/soloranked_icon.png"
-                  alt="경쟁전 아이콘"
-                  className="w-12 h-12 object-contain"
-                />
+                <img src="/icon/soloranked_icon.png" alt="경쟁전" className="w-12 h-12 object-contain" />
               </button>
             </div>
 
@@ -265,7 +308,6 @@ export default function BrawlersPage() {
                   <th className="p-3 whitespace-nowrap">같이하면 좋은 브롤러</th>
                 </tr>
               </thead>
-
               <tbody>
                 {tierList.length === 0 ? (
                   <tr>
@@ -274,35 +316,71 @@ export default function BrawlersPage() {
                     </td>
                   </tr>
                 ) : (
-                  tierList.map((b) => (
-                    <tr key={b.brawlerId} className="text-center border-b border-gray-700 h-16 hover:bg-gray-700/40 transition">
-                      <td className="p-3 font-bold text-yellow-400">{b.rank}</td>
-                      <td className="p-3">
-                        <span className={`px-5 py-2 rounded-lg font-bold text-lg ${TIER_COLORS[b.tier] ?? 'bg-gray-500 text-white'}`}>
-                          {b.tier}
-                        </span>
-                      </td>
-                      <td className="p-3 flex items-center gap-3 justify-center min-w-[150px]">
-                        <Link href={`/brawlers/${b.brawlerId}`}>
-                          <img
-                            src={b.imageUrl || getBrawlerImageUrlById(b.brawlerId)}
-                            alt={b.brawlerName}
-                            className="w-10 h-10 object-contain rounded cursor-pointer hover:scale-110 transition"
-                          />
-                        </Link>
-                        <Link href={`/brawlers/${b.brawlerId}`}>
-                          <span className="font-bold text-lg cursor-pointer hover:underline break-keep">
-                            {b.brawlerName}
+                  tierList.map((b, index) => {
+                    const tier = getTier(b.score, b.picks);
+                    return (
+                      <tr
+                        key={b.brawlerId}
+                        className="text-center border-b border-gray-700 h-16 hover:bg-gray-700/40 transition"
+                      >
+                        <td className="p-3 font-bold text-yellow-400">{index + 1}</td>
+                        <td className="p-3">
+                          <span
+                            className={`px-5 py-2 rounded-lg font-bold text-lg ${
+                              TIER_COLORS[tier] ?? "bg-gray-500 text-white"
+                            }`}
+                          >
+                            {tier}
                           </span>
-                        </Link>
-                      </td>
-                      <td className="p-3">{b.winRate.toFixed(1)}%</td>
-                      <td className="p-3">{b.pickRate.toFixed(1)}%</td>
-                      <td className="p-3">{b.score.toFixed(1)}점</td>
-                      <td className="p-3">{b.picks.toLocaleString()}</td>
-                      <td className="p-3 text-gray-500">-</td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="p-3 flex items-center gap-3 justify-center min-w-[150px]">
+                          <Link href={`/brawlers/${b.brawlerId}`}>
+                            <img
+                              src={b.imageUrl || getBrawlerImageUrlById(b.brawlerId)}
+                              alt={b.brawlerName}
+                              className="w-10 h-10 object-contain rounded cursor-pointer hover:scale-110 transition"
+                            />
+                          </Link>
+                          <Link href={`/brawlers/${b.brawlerId}`}>
+                            <span className="font-bold text-lg cursor-pointer hover:underline break-keep">
+                              {b.brawlerName}
+                            </span>
+                          </Link>
+                        </td>
+                        <td className="p-3">{b.winRate.toFixed(1)}%</td>
+                        <td className="p-3">{b.pickRate.toFixed(1)}%</td>
+                        <td className="p-3">{b.score.toFixed(1)}점</td>
+                        <td className="p-3">{b.picks.toLocaleString()}</td>
+                        <td className="p-3">
+                          {(b.topSynergies?.length ?? 0) > 0 ? (
+                            <div className="flex justify-center gap-3">
+                              {b.topSynergies!.slice(0, 3).map((synergy, idx) => {
+                                const imgSrc =
+                                  synergy.teammateImageUrl ??
+                                  (synergy.teammateId
+                                    ? getBrawlerImageUrlById(synergy.teammateId)
+                                    : "/brawler/unknown.png");
+                                return (
+                                  <div key={idx} className="flex flex-col items-center w-16">
+                                    <img
+                                      src={imgSrc}
+                                      alt={synergy.teammateName}
+                                      className="w-10 h-10 rounded-lg border border-gray-600 object-contain bg-gray-800"
+                                    />
+                                    <span className="text-xs mt-1 text-gray-300 font-semibold text-center break-keep">
+                                      {synergy.teammateName}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-gray-500">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

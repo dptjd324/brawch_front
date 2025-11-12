@@ -9,7 +9,7 @@ interface PlayerRanking {
   clubName: string;
   trophies: number;
   iconId: number;
-  tag?: string; // tag를 optional로 설정
+  playerTag: string; 
 }
 
 export default function PlayerRankingTable({ players }: { players: PlayerRanking[] }) {
@@ -23,7 +23,7 @@ export default function PlayerRankingTable({ players }: { players: PlayerRanking
           <tr>
             <th className="py-3 px-4">순위</th>
             <th className="py-3 px-4">플레이어</th>
-            <th className="py-3 px-4">클럽</th>
+            <th className="py-3 px-4">태그</th>
             <th className="py-3 px-4">트로피</th>
           </tr>
         </thead>
@@ -35,15 +35,20 @@ export default function PlayerRankingTable({ players }: { players: PlayerRanking
             >
               <td className="py-3 px-4 font-semibold">{p.rank}</td>
               <td className="py-3 px-4 font-medium">
-                {/* 플레이어 이름에 링크 추가 */}
-                <Link
-                  href={`/players/${p.tag?.replace('#', '') || ''}`} // tag가 없을 경우 빈 문자열로 처리
-                  className="text-teal-400 hover:underline"
-                >
-                  {p.name}
-                </Link>
+                {p.playerTag ? (
+                  <Link
+                    href={`/players/${p.playerTag.replace('#', '')}`}
+                    className="text-teal-400 hover:underline"
+                  >
+                    {p.name}
+                  </Link>
+                ) : (
+                  <span className="text-gray-400">{p.name}</span> // tag가 없으면 단순 텍스트 출력
+                )}
               </td>
-              <td className="py-3 px-4 text-gray-300">{p.clubName || '-'}</td>
+              <td className="py-3 px-4 font-bold text-yellow-400">
+                #{p.playerTag?.replace('#', '').toUpperCase()}
+              </td>
               <td className="py-3 px-4 font-bold text-yellow-400">
                 🏆 {p.trophies.toLocaleString()}
               </td>

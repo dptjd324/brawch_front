@@ -6,7 +6,7 @@ interface Props {
 }
 
 export default async function PlayerPage({ params }: Props) {
-  const { tag } = await params; // ✅ await 추가
+  const { tag } = await params; 
   const decodedTag = decodeURIComponent(tag);
   const encodedTag = encodeURIComponent(decodedTag);
 
