@@ -44,41 +44,50 @@ interface HyperCharge {
   descriptionKr: string;
 }
 
+interface SynergyInfo {
+  teammateId: number;
+  teammateName: string;
+  teammateImageUrl: string;
+  pairWinrate: number;
+  pairWins: number;
+  pairTotal: number;
+}
+
 export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
   const [gadgets, setGadgets] = useState<Gadget[]>([]);
   const [starPowers, setStarPowers] = useState<StarPower[]>([]);
-  const [hypercharge,setHyercharge] = useState<HyperCharge[]>([]);
+  const [hypercharge, setHyercharge] = useState<HyperCharge[]>([]);
+  const [extendedSynergies, setExtendedSynergies] = useState<SynergyInfo[]>([]);
 
   useEffect(() => {
-    // 가젯 데이터 가져오기
-    fetch(`http://localhost:8081/api/brawlers/${brawler.brawlerId}/gadgets`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Gadgets API Response:", data); // 데이터 확인
-        setGadgets(Array.isArray(data) ? data : []); // 배열인지 확인 후 설정
-      })
-      .catch((err) => console.error("Failed to fetch gadgets:", err));
+    // 가젯, 스타파워, 하이퍼차지 데이터 불러오기
+    const endpoints = [
+      { key: "gadgets", url: `http://localhost:8081/api/brawlers/${brawler.brawlerId}/gadgets` },
+      { key: "starpowers", url: `http://localhost:8081/api/brawlers/${brawler.brawlerId}/starpowers` },
+      { key: "hypercharges", url: `http://localhost:8081/api/brawlers/${brawler.brawlerId}/hypercharges` },
+    ];
 
-    // 스타파워 데이터 가져오기
-    fetch(`http://localhost:8081/api/brawlers/${brawler.brawlerId}/starpowers`)
+    endpoints.forEach(({ key, url }) => {
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            if (key === "gadgets") setGadgets(data);
+            else if (key === "starpowers") setStarPowers(data);
+            else setHyercharge(data);
+          }
+        })
+        .catch((err) => console.error(` Failed to fetch ${key}:`, err));
+    });
+    // 시너지 데이터 불러오기 (트로피전 기준)
+    fetch(`http://localhost:8081/api/synergy/full?patchVersion=2025-11-01&brawlerId=${brawler.brawlerId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Star Powers API Response:", data); // 데이터 확인
-        setStarPowers(Array.isArray(data) ? data : []); // 배열인지 확인 후 설정
+        const sorted = [...data].sort((a, b) => b.pairWinrate - a.pairWinrate);
+        setExtendedSynergies(sorted);
       })
-      .catch((err) => console.error("Failed to fetch star powers:", err));
-    
-      
-    // 하이퍼차지 데이터 가져오기
-    fetch(`http://localhost:8081/api/brawlers/${brawler.brawlerId}/hypercharges`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Hypercharge API Response:", data); // 데이터 확인
-        setHyercharge(Array.isArray(data) ? data : []); // 배열인지 확인 후 설정
-      })
-      .catch((err) => console.error("Failed to fetch hypercharges:", err));
+      .catch((err) => console.error("❌ Failed to fetch full synergy list:", err));
   }, [brawler.brawlerId]);
-
 
 
   return (
@@ -150,7 +159,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
                   {hypercharge.map((hypercharge, index) => (
                     <div key={index} className="flex flex-col items-center">
                       <img
-                        src={`/hypercharge/${brawler.nameEn}_hypercharge.png`} 
+                        src={`/hypercharge/${brawler.nameEn}_hypercharge.png`}
                         alt={hypercharge.nameKr}
                         className="w-16 h-16 rounded-lg object-cover mb-2"
                       />
@@ -164,45 +173,104 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
             </div>
           </div>
         </div>
-
-        {/* 조합 및 카운터 */}
-        <div className="grid grid-cols-2 gap-8">
-          {/* 조합 */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-            <h3 className="font-bold text-lg mb-4">조합</h3>
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((_, i) => (
-                <div key={i} className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-yellow-300 rounded-full"></div>
-                    <div className="w-8 h-8 bg-purple-300 rounded-full"></div>
-                  </div>
-                  <div className="text-sm text-gray-300">승률: 50%</div>
-                  <div className="text-sm text-gray-300">픽률: 30%</div>
-                  <div className="text-sm text-gray-300">표본수: 1000</div>
-                </div>
-              ))}
+        {/* 🟦 시너지 상세 리스트 */}
+        <div className="grid grid-cols-2 gap-6 mt-10">
+          {/*  함께하면 좋은 브롤러 */}
+          <div className="bg-gray-800 rounded-xl shadow-md">
+            <div className="flex justify-between items-center bg-gray-700 px-4 py-3 rounded-t-xl border-b border-gray-600">
+              <h3 className="text-lg font-bold text-green-400">함께하면 좋은 브롤러</h3>
+              <span className="text-xs text-gray-400">승률 높은 순</span>
             </div>
+
+            <table className="w-full text-sm text-gray-200">
+              <thead className="bg-gray-750 text-gray-400">
+                <tr>
+                  <th className="text-left px-4 py-2">브롤러</th>
+                  <th className="text-right px-4 py-2">게임수</th>
+                  <th className="text-right px-4 py-2">승수</th>
+                  <th className="text-right px-4 py-2">승률</th>
+                </tr>
+              </thead>
+              <tbody>
+                {extendedSynergies
+                  .filter((s) => s.pairWinrate >= 0.5)
+                  .sort((a, b) => b.pairWinrate - a.pairWinrate)
+                  .slice(0, 10)
+                  .map((s, idx) => (
+                    <tr
+                      key={idx}
+                      className="hover:bg-gray-700 transition border-b border-gray-700"
+                    >
+                      <td className="px-4 py-2 flex items-center gap-3">
+                        <img
+                          src={s.teammateImageUrl}
+                          alt={s.teammateName}
+                          className="w-8 h-8 rounded-lg border border-gray-600"
+                        />
+                        <span className="font-medium">{s.teammateName}</span>
+                      </td>
+                      <td className="px-4 py-2 text-right text-gray-300">
+                        {s.pairTotal?.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-right text-gray-400">
+                        {s.pairWins?.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-right font-bold text-green-400">
+                        {(s.pairWinrate * 100).toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
-
-          {/* 카운터 */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-            <h3 className="font-bold text-lg mb-4">카운터</h3>
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((_, i) => (
-                <div key={i} className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-red-300 rounded-full"></div>
-                    <span className="text-sm text-gray-300">브롤러</span>
-                  </div>
-                  <div className="text-sm text-gray-300">판수: </div>
-                  <div className="text-sm text-gray-300">승률: </div>
-                </div>
-              ))}
+          {/* 함께하면 안좋은 브롤러 */}
+          <div className="bg-gray-800 rounded-xl shadow-md">
+            <div className="flex justify-between items-center bg-gray-700 px-4 py-3 rounded-t-xl border-b border-gray-600">
+              <h3 className="text-lg font-bold text-red-400">함께하면 안좋은 브롤러</h3>
+              <span className="text-xs text-gray-400">승률 낮은 순</span>
             </div>
+
+            <table className="w-full text-sm text-gray-200">
+              <thead className="bg-gray-750 text-gray-400">
+                <tr>
+                  <th className="text-left px-4 py-2">브롤러</th>
+                  <th className="text-right px-4 py-2">게임수</th>
+                  <th className="text-right px-4 py-2">승수</th>
+                  <th className="text-right px-4 py-2">승률</th>
+                </tr>
+              </thead>
+              <tbody>
+                {extendedSynergies
+                  .sort((a, b) => a.pairWinrate - b.pairWinrate) // 낮은 승률순
+                  .slice(0, 10)
+                  .map((s, idx) => (
+                    <tr
+                      key={idx}
+                      className="hover:bg-gray-700 transition border-b border-gray-700"
+                    >
+                      <td className="px-4 py-2 flex items-center gap-3">
+                        <img
+                          src={s.teammateImageUrl}
+                          alt={s.teammateName}
+                          className="w-8 h-8 rounded-lg border border-gray-600"
+                        />
+                        <span className="font-medium">{s.teammateName}</span>
+                      </td>
+                      <td className="px-4 py-2 text-right text-gray-300">
+                        {s.pairTotal?.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-right text-gray-400">
+                        {s.pairWins?.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-right font-bold text-red-400">
+                        {(s.pairWinrate * 100).toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
         </div>
-
         {/* 스킬 상세설명 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mt-8">
           <h3 className="font-bold text-lg mb-4">스킬 상세설명</h3>
@@ -269,10 +337,10 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
             {Array.isArray(hypercharge) && hypercharge.map((hypercharge, index) => (
               <div key={index} className="flex items-center gap-4">
                 <img
-                  src={`/hypercharge/${brawler.nameEn}_hypercharge.png`} 
+                  src={`/hypercharge/${brawler.nameEn}_hypercharge.png`}
                   alt={`하이퍼차지 이미지 ${index + 1}`}
                   className="w-16 h-16 rounded-lg object-cover"
-                />   
+                />
                 <div>
                   <h4 className="font-bold text-gray-300">{hypercharge.nameKr} (Hypercharge)</h4>
                   <p className="text-gray-400 whitespace-pre-line">{hypercharge.descriptionKr || "설명이 없습니다."}</p>

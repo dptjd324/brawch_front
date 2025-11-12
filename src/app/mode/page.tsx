@@ -2,6 +2,9 @@
 
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
+import { mapNameKoMap } from "@/utils/mapNameKoMap_UPDATED_ALL";
+
+
 
 const MODE_BG_COLORS: Record<string, string> = {
   soloshowdown: 'bg-lime-400',
@@ -14,7 +17,36 @@ const MODE_BG_COLORS: Record<string, string> = {
   brawlball: 'bg-green-400',
   knockout: 'bg-pink-400',
 };
-
+const MODE_LABEL_KO_MAP: Record<string, string> = {
+  gemgrab: '젬 그랩',
+  bounty: '바운티',
+  hotzone: '핫존',
+  heist: '하이스트',
+  brawlball: '브롤볼',
+  knockout: '녹아웃',
+  soloshowdown: '솔로 쇼다운',
+  duoshowdown: '듀오 쇼다운',
+  trioshowdown: '트리오 쇼다운',
+  basketbrawl: '바스켓 브롤',
+  volleybrawl: '발리 브롤',
+  dodgebrawl: '도지 브롤',
+  wipeout: '와이프아웃',
+  holdthetrophy: '트로피 쟁탈전',
+  payload: '페이로드',
+  hunters: '헌터즈',
+  duels: '듀얼',
+  biggame: '빅 게임',
+  bossfight: '보스전',
+  robo_rumble: '로보 럼블',
+  showdownplus: '쇼다운 플러스',
+  snowtel_thieves: '스노우텔 도둑',
+  trophythieves: '트로피 도둑',
+  zone_resilience: '존 레질리언스',
+  zone_control: '존 컨트롤',
+  siege: '시즈',
+  supercity_rampage: '슈퍼시티 램페이지',
+  training: '연습 경기',
+};
 interface ModeEvent {
   startTime: string;
   endTime: string;
@@ -36,7 +68,11 @@ const findMapId = (k: string, mapName: string, dict: ModeMapDict) => {
   const hit = list.find((m) => normalize(m.name) === target);
   return hit?.id;
 };
-
+function getMapNameKo(mode: string, enName: string): string {
+  const m = (mode || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const e = (enName || '').toLowerCase().trim();
+  return mapNameKoMap[m]?.[e] ?? enName;
+}
 const withFallback = (e: React.SyntheticEvent<HTMLImageElement>) => {
   const img = e.currentTarget as HTMLImageElement & { dataset: Record<string, string> };
   if (img.dataset.fallbackApplied) return;
@@ -175,7 +211,9 @@ export default function ModesPage() {
                           </div>
                           <div className="flex flex-col justify-center items-start">
                             <span className="text-white text-xl font-bold">{m.event.mode}</span>
-                            <span className="text-white text-base">{m.event.map}</span>
+                            <span className="text-white text-base">
+                              {getMapNameKo(m.event.mode, m.event.map)}
+                            </span>
                           </div>
                         </div>
                         <div className="flex-1 flex items-center justify-center bg-gray-100 rounded-b-2xl h-[200px] overflow-hidden">
@@ -219,8 +257,8 @@ export default function ModesPage() {
         {/* 경쟁전 아이콘 버튼 */}
         <button
           className={`p-4 rounded-2xl shadow-lg transition border-4 ${selectedCategory === 'competitive'
-              ? 'border-blue-500 bg-blue-500/20 scale-110'
-              : 'border-transparent bg-gray-700 hover:scale-105'
+            ? 'border-blue-500 bg-blue-500/20 scale-110'
+            : 'border-transparent bg-gray-700 hover:scale-105'
             }`}
           onClick={() => setSelectedCategory('competitive')}
           title="경쟁전"
@@ -235,8 +273,8 @@ export default function ModesPage() {
         {/* 트로피전 아이콘 버튼 */}
         <button
           className={`p-4 rounded-2xl shadow-lg transition border-4 ${selectedCategory === 'trophy'
-              ? 'border-amber-500 bg-amber-500/20 scale-110'
-              : 'border-transparent bg-gray-700 hover:scale-105'
+            ? 'border-amber-500 bg-amber-500/20 scale-110'
+            : 'border-transparent bg-gray-700 hover:scale-105'
             }`}
           onClick={() => setSelectedCategory('trophy')}
           title="트로피전"
@@ -261,8 +299,8 @@ export default function ModesPage() {
               <button
                 key={k}
                 className={`w-24 h-24 bg-green-300 rounded-xl flex items-center justify-center overflow-hidden border-2 transition ${isSelected
-                    ? 'border-blue-500 scale-110'
-                    : 'border-transparent hover:scale-105'
+                  ? 'border-blue-500 scale-110'
+                  : 'border-transparent hover:scale-105'
                   }`}
                 title={label}
                 onClick={() => setSelectedKey(k)}
@@ -296,7 +334,9 @@ export default function ModesPage() {
                     className="w-40 h-40 object-contain mb-4 rounded bg-black/10"
                     onError={withFallback}
                   />
-                  <div className="font-semibold text-center text-lg">{map.name}</div>
+                  <div className="font-semibold text-center text-lg">
+                    {getMapNameKo(selectedKey, map.name)}
+                  </div>
                 </Link>
               ))
             ) : (
