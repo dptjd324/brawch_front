@@ -4,8 +4,6 @@ import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { mapNameKoMap } from "@/utils/mapNameKoMap_UPDATED_ALL";
 
-
-
 const MODE_BG_COLORS: Record<string, string> = {
   soloshowdown: 'bg-lime-400',
   duoshowdown: 'bg-lime-400',
@@ -17,6 +15,7 @@ const MODE_BG_COLORS: Record<string, string> = {
   brawlball: 'bg-green-400',
   knockout: 'bg-pink-400',
 };
+
 const MODE_LABEL_KO_MAP: Record<string, string> = {
   gemgrab: '젬 그랩',
   bounty: '바운티',
@@ -47,6 +46,7 @@ const MODE_LABEL_KO_MAP: Record<string, string> = {
   supercity_rampage: '슈퍼시티 램페이지',
   training: '연습 경기',
 };
+
 interface ModeEvent {
   startTime: string;
   endTime: string;
@@ -59,8 +59,21 @@ type MapItem = { id: number; name: string };
 type ModeMapDict = Record<string, MapItem[]>;
 type ModeLabelDict = Record<string, string>;
 
-const toKey = (raw: string) => (raw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+// 문자열 정규화
 const normalize = (s: string) => (s || '').toLowerCase().replace(/\s+/g, '').trim();
+
+// 모드 정규화 + 솔로/듀오 구분
+const normalizeMode = (mode: string | null | undefined, mapName: string | null | undefined) => {
+  const m = String(mode ?? '').toLowerCase();
+  const name = String(mapName ?? '');
+  if (m.includes('duo')) return 'duoshowdown';
+  if (m.includes('solo')) return 'soloshowdown';
+  if (m === 'showdown') {
+    if (name.includes('듀오') || name.toLowerCase().includes('duo')) return 'duoshowdown';
+    return 'soloshowdown';
+  }
+  return m.replace(/[^a-z0-9]/g, '');
+};
 
 const findMapId = (k: string, mapName: string, dict: ModeMapDict) => {
   const list = dict[k] || [];
@@ -68,11 +81,13 @@ const findMapId = (k: string, mapName: string, dict: ModeMapDict) => {
   const hit = list.find((m) => normalize(m.name) === target);
   return hit?.id;
 };
+
 function getMapNameKo(mode: string, enName: string): string {
   const m = (mode || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   const e = (enName || '').toLowerCase().trim();
   return mapNameKoMap[m]?.[e] ?? enName;
 }
+
 const withFallback = (e: React.SyntheticEvent<HTMLImageElement>) => {
   const img = e.currentTarget as HTMLImageElement & { dataset: Record<string, string> };
   if (img.dataset.fallbackApplied) return;
@@ -99,12 +114,10 @@ export default function ModesPage() {
   const [sliceStart, setSliceStart] = useState(0);
   const sliceCount = 4;
 
-  // ✅ 카테고리 상태 추가
   const [selectedCategory, setSelectedCategory] = useState<'competitive' | 'trophy'>('competitive');
-
   const competitiveModes = ['gemgrab', 'bounty', 'hotzone', 'heist', 'brawlball', 'knockout'];
 
-  // 진행 중 모드 로테이션 불러오기
+  // LIVE 모드 불러오기
   useEffect(() => {
     (async () => {
       try {
@@ -133,7 +146,7 @@ export default function ModesPage() {
         const labels: ModeLabelDict = {};
 
         (raw || []).forEach((m) => {
-          const key = toKey(m.mode);
+          const key = normalizeMode(m.mode, m.name);
           const idNum =
             typeof m.id === 'string' ? parseInt(m.id, 10) : Number.isFinite(m.id) ? (m.id as number) : NaN;
           if (Number.isNaN(idNum)) return;
@@ -159,8 +172,6 @@ export default function ModesPage() {
   }, []);
 
   const modeKeys = useMemo(() => Object.keys(modeMaps), [modeMaps]);
-
-
   const filteredModeKeys = useMemo(() => {
     if (selectedCategory === 'competitive') {
       return modeKeys.filter((k) => competitiveModes.includes(k));
@@ -188,14 +199,25 @@ export default function ModesPage() {
               >
                 ◀
               </button>
+
               <div className="flex flex-row gap-10 w-full justify-center px-10">
                 {ongoingModes.slice(sliceStart, sliceStart + sliceCount).map((m, i) => {
-                  const k = toKey(m.event.mode);
-                  const mapId = findMapId(k, m.event.map, modeMaps);
+                  const rawMode = m?.event?.mode ?? '';
+                  const rawMap = m?.event?.map ?? '';
+
+                  //  Showdown 모드 강제 분류
+                  let k = normalizeMode(rawMode, rawMap);
+                  if (k === 'showdown') {
+                    if (m.slotId === 1) k = 'soloshowdown';
+                    else if (m.slotId === 2) k = 'duoshowdown';
+                  }
+
+                  const mapId = findMapId(k, rawMap, modeMaps);
                   const Wrapper: any = mapId ? Link : 'button';
                   const wrapperProps = mapId
                     ? { href: `/mode/${k}/${mapId}`, className: 'block' }
                     : { onClick: () => setSelectedKey(k) };
+
                   const modeBg = MODE_BG_COLORS[k] || 'bg-gray-300';
                   return (
                     <Wrapper key={i} {...wrapperProps}>
@@ -204,23 +226,21 @@ export default function ModesPage() {
                           <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                             <img
                               src={`/mode/${k}_icon.png`}
-                              alt={`${m.event.mode} 아이콘`}
+                              alt={`${rawMode} 아이콘`}
                               className="w-12 h-12 object-contain"
                               onError={withFallback}
                             />
                           </div>
                           <div className="flex flex-col justify-center items-start">
-                            <span className="text-white text-xl font-bold">{m.event.mode}</span>
-                            <span className="text-white text-base">
-                              {getMapNameKo(m.event.mode, m.event.map)}
-                            </span>
+                            <span className="text-white text-xl font-bold">{MODE_LABEL_KO_MAP[k] ?? rawMode}</span>
+                            <span className="text-white text-base">{getMapNameKo(k, rawMap)}</span>
                           </div>
                         </div>
                         <div className="flex-1 flex items-center justify-center bg-gray-100 rounded-b-2xl h-[200px] overflow-hidden">
                           {mapId ? (
                             <img
                               src={`/map/${k}/${mapId}.png`}
-                              alt={m.event.map}
+                              alt={rawMap}
                               className="object-contain max-h-full max-w-full"
                               onError={withFallback}
                             />
@@ -238,8 +258,11 @@ export default function ModesPage() {
                   );
                 })}
               </div>
+
               <button
-                onClick={() => setSliceStart(Math.min(sliceStart + 1, Math.max(ongoingModes.length - sliceCount, 0)))}
+                onClick={() =>
+                  setSliceStart(Math.min(sliceStart + 1, Math.max(ongoingModes.length - sliceCount, 0)))
+                }
                 className="absolute right-[-60px] top-1/2 -translate-y-1/2 bg-gray-700 text-white p-5 rounded-full z-20 shadow-lg hover:bg-gray-800 transition"
                 disabled={sliceStart + sliceCount >= ongoingModes.length}
               >

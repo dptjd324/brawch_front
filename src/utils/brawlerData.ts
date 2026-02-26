@@ -89,7 +89,7 @@ export const brawlerIdMap: { [key: string]: number } = {
   "Ollie": 16000090,
   "Lumi": 160000891,
   "Finx": 16000092,
-  "Jae-yong": 16000093,
+  "Jaeyong": 16000093,
   "Kaze": 16000094,
   "Trunk": 16000096,
   "Alli": 16000095,

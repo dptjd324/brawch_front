@@ -204,12 +204,12 @@ function toNum(v: unknown, fallback = Infinity) {
 }
 
 function getTeamRank(team: { rank?: number; players?: { rank?: number }[] }, fallback: number) {
-    // 1순위: 팀 레벨 rank
+    // 팀 레벨 rank
     if (team.rank != null) return toNum(team.rank, fallback);
-    // 2순위: 플레이어 레벨 rank(듀오/트리오면 팀원들이 같은 값)
+    // 플레이어 레벨 rank(듀오/트리오면 팀원들이 같은 값)
     const pr = team.players?.[0]?.rank;
     if (pr != null) return toNum(pr, fallback);
-    // 3순위: 인덱스 기반
+    //  인덱스 기반
     return fallback;
 }
 
@@ -354,7 +354,7 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                                     <Image
                                         src={getBrawlerImagePath(player.brawler.name)}
                                         alt={player.brawler.name}
-                                        width={100}   // 크게 조정 (60→100)
+                                        width={100}  
                                         height={100}
                                         className="rounded-full border-4 border-white bg-gray-700 shadow-lg"
                                     />
@@ -399,19 +399,19 @@ export default function BattleDetail({ battle }: { battle: BattleDetailDto }) {
                                                 <Image
                                                     src={getBrawlerImagePath(player.brawler.name)}
                                                     alt={player.brawler.name}
-                                                    width={90}  // 60 → 90
-                                                    height={90} // 60 → 90
-                                                    className="rounded-full border-4 border-white bg-gray-700 shadow-lg" // border 두께 + 그림자 추가
+                                                    width={90}  
+                                                    height={90} 
+                                                    className="rounded-full border-4 border-white bg-gray-700 shadow-lg" 
                                                 />
                                                 <Link
                                                     href={`/players/${player.tag.replace('#', '')}`}
-                                                    className="text-white text-base font-bold mt-2 hover:underline" // text-sm → text-base, font-semibold → font-bold
+                                                    className="text-white text-base font-bold mt-2 hover:underline" 
                                                 >
                                                     {player.name}
                                                 </Link>
-                                                <p className="text-sm text-gray-200">{getBrawlerNameInKorean(player.brawler.name)}</p> {/* text-xs → text-sm */}
-                                                <p className="text-sm text-gray-400 mt-0.5">🏆 {player.brawler.trophies}</p> {/* text-xs → text-sm */}
-                                                <p className="text-sm text-gray-400 mt-0.5">파워: {player.brawler.power}</p> {/* text-xs → text-sm */}
+                                                <p className="text-sm text-gray-200">{getBrawlerNameInKorean(player.brawler.name)}</p> 
+                                                <p className="text-sm text-gray-400 mt-0.5">🏆 {player.brawler.trophies}</p> 
+                                                <p className="text-sm text-gray-400 mt-0.5">파워: {player.brawler.power}</p>
 
                                             </div>
                                         ))}

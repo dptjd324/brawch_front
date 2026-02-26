@@ -153,7 +153,7 @@ export default function MapTierListClient({ modeKey, id }: { modeKey: string; id
                               className="w-full h-full object-cover rounded-full"
                               onError={(e) => {
                                 const img = e.currentTarget;
-                                img.src = '/fallback.png';
+                              
                               }}
                             />
                           </div>

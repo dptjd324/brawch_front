@@ -86,7 +86,7 @@ export default function BrawlerDetail({ brawler }: { brawler: Brawler }) {
         const sorted = [...data].sort((a, b) => b.pairWinrate - a.pairWinrate);
         setExtendedSynergies(sorted);
       })
-      .catch((err) => console.error("❌ Failed to fetch full synergy list:", err));
+      .catch((err) => console.error(" Failed to fetch full synergy list:", err));
   }, [brawler.brawlerId]);
 
 

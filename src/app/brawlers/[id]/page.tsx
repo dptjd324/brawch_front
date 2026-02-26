@@ -18,7 +18,7 @@ export async function generateStaticParams() {
 
 export default async function BrawlerDetailPage({ params }: BrawlerDetailPageProps) {
   const res = await fetch(`http://localhost:8081/api/brawlers/${params.id}`, {
-  next: { revalidate: 60 }, // 또는 3600 (1시간) 등
+  next: { revalidate: 60 }, 
 });
   if (!res.ok) return notFound();
 

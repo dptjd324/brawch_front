@@ -177,12 +177,12 @@ type Props = {
   };
 };
 
-export default function PlayerDetail({ player }: Props)  {
+export default function PlayerDetail({ player }: Props) {
   const [visibleCount, setVisibleCount] = useState(12);
   const battleLog = player.battleLog || [];
   const [progress, setProgress] = useState<any>(null);
 
-   useEffect(() => {
+  useEffect(() => {
     async function fetchProgress() {
       try {
         const res = await fetch(`/api/players/${encodeURIComponent(player.tag)}/progress`);
@@ -200,7 +200,7 @@ export default function PlayerDetail({ player }: Props)  {
   const loadMore = () => {
     setVisibleCount(prev => Math.min(prev + 12, battleLog.length));
   };
-  
+
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen text-white p-8">
@@ -376,7 +376,7 @@ export default function PlayerDetail({ player }: Props)  {
               const result = battleInfo.result || "결과 없음";
               const mode = battleInfo.mode || "모드 없음";
               let resultText = "결과 없음";
-              if (mode === "duoShowdown" || mode === "soloShowdown") {
+              if (["soloShowdown", "duoShowdown", "trioShowdown"].includes(mode)) {
                 if (typeof battleInfo.rank === "number") {
                   resultText = `${battleInfo.rank}위`;
                 }
@@ -457,7 +457,7 @@ export default function PlayerDetail({ player }: Props)  {
                       <span className="text-base font-semibold mt-1">
                         {getModeLabel(mode, battleInfo)}
                       </span>
-                  
+
                       {battleInfo.type === "ranked" && (
                         <div className="mt-4 pt-8 flex items-center gap-2">
                           <img
@@ -504,10 +504,10 @@ export default function PlayerDetail({ player }: Props)  {
               >
                 더 보기
               </button>
-                  {/* 작은 글씨 추가 */}
-    <p className="text-base text-gray-400 mt-2">
-      최근 플레이한 전적 200개까지 표시됩니다.
-    </p>
+              {/* 작은 글씨 추가 */}
+              <p className="text-base text-gray-400 mt-2">
+                최근 플레이한 전적 200개까지 표시됩니다.
+              </p>
             </div>
           )}
         </div>
